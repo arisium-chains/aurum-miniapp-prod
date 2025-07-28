@@ -25,21 +25,62 @@ services:
   # ML Face Scoring API
   ml-api:
     build:
-      context: ./miniapp/ml-face-score-api
+      context: ./miniapp/aurum-circle-miniapp/ml-face-score-api
       dockerfile: Dockerfile
     ports:
       - "3001:3000"
     environment:
       - NODE_ENV=production
       - REDIS_URL=redis://redis:6379
+      - FACE_DETECTION_SERVICE=http://face-detection-service:8001
+      - FACE_EMBEDDING_SERVICE=http://face-embedding-service:8002
     depends_on:
       - redis
+      - face-detection-service
+      - face-embedding-service
     volumes:
-      - ./miniapp/ml-face-score-api/temp:/app/temp
-      - ./miniapp/ml-face-score-api/models:/app/models
+      - ./miniapp/aurum-circle-miniapp/ml-face-score-api/temp:/app/temp
+      - ./miniapp/aurum-circle-miniapp/ml-face-score-api/models:/app/models
     restart: unless-stopped
     networks:
       - aurum-network
+
+  # Rust ML Services
+  face-detection-service:
+    build:
+      context: ./aurum-ml-services
+      dockerfile: face-detection/Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+      - MODEL_PATH=/app/models/face_detection_model.onnx
+      - LOG_LEVEL=info
+    volumes:
+      - ./miniapp/aurum-circle-miniapp/public/models/face_detection:/app/models
+    restart: unless-stopped
+    networks:
+      - aurum-network
+    depends_on:
+      - redis
+
+  face-embedding-service:
+    build:
+      context: ./aurum-ml-services
+      dockerfile: face-embedding/Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      - PORT=8002
+      - MODEL_PATH=/app/models/face_embedding_model.onnx
+      - LOG_LEVEL=info
+    volumes:
+      - ./miniapp/aurum-circle-miniapp/public/models/arcface:/app/models
+    restart: unless-stopped
+    networks:
+      - aurum-network
+    depends_on:
+      - redis
 
   # Redis for job queue and caching (shared between services)
   redis:

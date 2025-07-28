@@ -247,8 +247,8 @@ Create `miniapp/aurum-circle-miniapp/ml-face-score-api/.env` with the following 
 REDIS_URL=redis://localhost:6379
 
 # ML Services URLs
-FACE_DETECTION_SERVICE=http://localhost:8001
-FACE_EMBEDDING_SERVICE=http://localhost:8002
+FACE_DETECTION_SERVICE=http://face-detection-service:8001
+FACE_EMBEDDING_SERVICE=http://face-embedding-service:8002
 
 # Server configuration
 PORT=3001
@@ -282,6 +282,17 @@ public/models/
 └── arcface/
     └── model.onnx          # Face embedding model
 ```
+
+## Nginx Configuration for Port 80 Exposure
+
+The application is configured to expose the frontend on port 80 using nginx reverse proxy. The nginx configuration is located at `nginx/conf/default.conf` and includes:
+
+1. Proxy to the main Next.js application on port 3000
+2. Proxy to the ML API service on port 3001
+3. Proxy to the Rust ML services on ports 8001 and 8002
+4. Health check endpoint
+
+To customize the domain name, update the `server_name` directive in the nginx configuration file.
 
 ## Deployment Validation
 
@@ -448,7 +459,7 @@ To push all changes to the repository with force:
 git add .
 
 # Commit changes
-git commit -m "Complete deployment setup with Rust ML services integration"
+git commit -m "Complete deployment setup with Rust ML services integration and nginx configuration"
 
 # Push with force (be careful with this command)
 git push --force origin main
@@ -460,4 +471,4 @@ Note: Use `git push --force` with caution as it will overwrite the remote branch
 
 This deployment guide provides a comprehensive approach to deploying the Aurum Circle application in a production environment. The Docker Compose approach is recommended for most deployments due to its simplicity and consistency, while manual deployment offers more control for specialized environments.
 
-Regular monitoring, backups, and updates are essential for maintaining a healthy production environment.
+Regular monitoring, backups, and updates are essential for maintaining a healthy production environment. The application is now configured to expose the frontend on port 80 using nginx reverse proxy, making it accessible via standard HTTP.
