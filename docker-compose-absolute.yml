@@ -4,7 +4,7 @@ services:
   # Main Next.js application
   app:
     build:
-      context: /root/aurum-circle-miniapp/miniapp/aurum-circle-miniapp
+      context: /root/aurum-miniapp-prod/miniapp/aurum-circle-miniapp
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
@@ -21,7 +21,7 @@ services:
       - face-detection-service
       - face-embedding-service
     volumes:
-      - /root/aurum-circle-miniapp/miniapp/aurum-circle-miniapp/public/models:/app/public/models
+      - /root/aurum-miniapp-prod/miniapp/aurum-circle-miniapp/public/models:/app/public/models
     restart: unless-stopped
     networks:
       - aurum-network
@@ -29,7 +29,7 @@ services:
   # ML Face Scoring API
   ml-api:
     build:
-      context: /root/aurum-circle-miniapp/miniapp/aurum-circle-miniapp/ml-face-score-api
+      context: /root/aurum-miniapp-prod/miniapp/aurum-circle-miniapp/ml-face-score-api
       dockerfile: Dockerfile
     ports:
       - "3001:3000"
@@ -43,8 +43,8 @@ services:
       - face-detection-service
       - face-embedding-service
     volumes:
-      - /root/aurum-circle-miniapp/miniapp/aurum-circle-miniapp/ml-face-score-api/temp:/app/temp
-      - /root/aurum-circle-miniapp/miniapp/aurum-circle-miniapp/ml-face-score-api/models:/app/models
+      - /root/aurum-miniapp-prod/miniapp/aurum-circle-miniapp/ml-face-score-api/temp:/app/temp
+      - /root/aurum-miniapp-prod/miniapp/aurum-circle-miniapp/ml-face-score-api/models:/app/models
     restart: unless-stopped
     networks:
       - aurum-network
@@ -52,7 +52,7 @@ services:
   # Rust ML Services
   face-detection-service:
     build:
-      context: /root/aurum-circle-miniapp
+      context: /root/aurum-miniapp-prod
       dockerfile: aurum-ml-services/face-detection/Dockerfile
     ports:
       - "8001:8001"
@@ -61,7 +61,7 @@ services:
       - MODEL_PATH=/app/models/face_detection_model.onnx
       - LOG_LEVEL=info
     volumes:
-      - /root/aurum-circle-miniapp/miniapp/aurum-circle-miniapp/public/models/face_detection:/app/models
+      - /root/aurum-miniapp-prod/miniapp/aurum-circle-miniapp/public/models/face_detection:/app/models
     restart: unless-stopped
     networks:
       - aurum-network
@@ -70,7 +70,7 @@ services:
 
   face-embedding-service:
     build:
-      context: /root/aurum-circle-miniapp
+      context: /root/aurum-miniapp-prod
       dockerfile: aurum-ml-services/face-embedding/Dockerfile
     ports:
       - "8002:8002"
@@ -79,7 +79,7 @@ services:
       - MODEL_PATH=/app/models/face_embedding_model.onnx
       - LOG_LEVEL=info
     volumes:
-      - /root/aurum-circle-miniapp/miniapp/aurum-circle-miniapp/public/models/arcface:/app/models
+      - /root/aurum-miniapp-prod/miniapp/aurum-circle-miniapp/public/models/arcface:/app/models
     restart: unless-stopped
     networks:
       - aurum-network
@@ -117,8 +117,8 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - /root/aurum-circle-miniapp/nginx/conf:/etc/nginx/conf.d
-      - /root/aurum-circle-miniapp/nginx/certs:/etc/nginx/certs
+      - /root/aurum-miniapp-prod/nginx/conf:/etc/nginx/conf.d
+      - /root/aurum-miniapp-prod/nginx/certs:/etc/nginx/certs
     depends_on:
       - app
     restart: unless-stopped
