@@ -1,0 +1,134 @@
+version: "3.8"
+
+services:
+  # Main Next.js application
+  app:
+    build:
+      context: /root/aurum-circle-miniapp/miniapp/aurum-circle-miniapp
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - FACE_DETECTION_SERVICE=http://face-detection-service:8001
+      - FACE_EMBEDDING_SERVICE=http://face-embedding-service:8002
+    depends_on:
+      - redis
+      - qdrant
+      - face-detection-service
+      - face-embedding-service
+    volumes:
+      - /root/aurum-circle-miniapp/miniapp/aurum-circle-miniapp/public/models:/app/public/models
+    restart: unless-stopped
+    networks:
+      - aurum-network
+
+  # ML Face Scoring API
+  ml-api:
+    build:
+      context: /root/aurum-circle-miniapp/miniapp/aurum-circle-miniapp/ml-face-score-api
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379
+      - FACE_DETECTION_SERVICE=http://face-detection-service:8001
+      - FACE_EMBEDDING_SERVICE=http://face-embedding-service:8002
+    depends_on:
+      - redis
+      - face-detection-service
+      - face-embedding-service
+    volumes:
+      - /root/aurum-circle-miniapp/miniapp/aurum-circle-miniapp/ml-face-score-api/temp:/app/temp
+      - /root/aurum-circle-miniapp/miniapp/aurum-circle-miniapp/ml-face-score-api/models:/app/models
+    restart: unless-stopped
+    networks:
+      - aurum-network
+
+  # Rust ML Services
+  face-detection-service:
+    build:
+      context: /root/aurum-circle-miniapp
+      dockerfile: aurum-ml-services/face-detection/Dockerfile
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+      - MODEL_PATH=/app/models/face_detection_model.onnx
+      - LOG_LEVEL=info
+    volumes:
+      - /root/aurum-circle-miniapp/miniapp/aurum-circle-miniapp/public/models/face_detection:/app/models
+    restart: unless-stopped
+    networks:
+      - aurum-network
+    depends_on:
+      - redis
+
+  face-embedding-service:
+    build:
+      context: /root/aurum-circle-miniapp
+      dockerfile: aurum-ml-services/face-embedding/Dockerfile
+    ports:
+      - "8002:8002"
+    environment:
+      - PORT=8002
+      - MODEL_PATH=/app/models/face_embedding_model.onnx
+      - LOG_LEVEL=info
+    volumes:
+      - /root/aurum-circle-miniapp/miniapp/aurum-circle-miniapp/public/models/arcface:/app/models
+    restart: unless-stopped
+    networks:
+      - aurum-network
+    depends_on:
+      - redis
+
+  # Redis for job queue and caching (shared between services)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    networks:
+      - aurum-network
+
+  # Qdrant vector database
+  qdrant:
+    image: qdrant/qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    restart: unless-stopped
+    networks:
+      - aurum-network
+
+  # Nginx reverse proxy for production
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /root/aurum-circle-miniapp/nginx/conf:/etc/nginx/conf.d
+      - /root/aurum-circle-miniapp/nginx/certs:/etc/nginx/certs
+    depends_on:
+      - app
+    restart: unless-stopped
+    networks:
+      - aurum-network
+
+networks:
+  aurum-network:
+    driver: bridge
+
+volumes:
+  redis_data:
+  qdrant_storage:
