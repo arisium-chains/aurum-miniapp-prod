@@ -1,0 +1,89 @@
+version: "3.8"
+
+services:
+  # Main Next.js application
+  app:
+    build:
+      context: ./miniapp/aurum-circle-miniapp
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+    depends_on:
+      - redis
+      - qdrant
+    volumes:
+      - ./miniapp/aurum-circle-miniapp/public/models:/app/public/models
+    restart: unless-stopped
+    networks:
+      - aurum-network
+
+  # ML Face Scoring API
+  ml-api:
+    build:
+      context: ./miniapp/ml-face-score-api
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=production
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+    volumes:
+      - ./miniapp/ml-face-score-api/temp:/app/temp
+      - ./miniapp/ml-face-score-api/models:/app/models
+    restart: unless-stopped
+    networks:
+      - aurum-network
+
+  # Redis for job queue and caching (shared between services)
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+    networks:
+      - aurum-network
+
+  # Qdrant vector database
+  qdrant:
+    image: qdrant/qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_storage:/qdrant/storage
+    restart: unless-stopped
+    networks:
+      - aurum-network
+
+  # Nginx reverse proxy for production
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf:/etc/nginx/conf.d
+      - ./nginx/certs:/etc/nginx/certs
+    depends_on:
+      - app
+    restart: unless-stopped
+    networks:
+      - aurum-network
+
+networks:
+  aurum-network:
+    driver: bridge
+
+volumes:
+  redis_data:
+  qdrant_storage:
