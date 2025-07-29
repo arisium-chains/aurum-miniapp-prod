@@ -1,0 +1,24 @@
+[package]
+name = "face-embedding"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+name = "face_embedding"
+path = "src/lib.rs"
+
+[[bin]]
+name = "face-embedding"
+path = "src/main.rs"
+
+[dependencies]
+actix-web = "4.11.0"
+actix-web-lab = "0.24.2"
+env_logger = "0.11.8"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.141"
+ort = { version = "2.0.0-rc.10", features = ["acl"] }
+image = "0.24.7"
+ndarray = "0.15.6"
+thiserror = "1.0.60"
+base64 = "0.21.7"

@@ -1,0 +1,7 @@
+[workspace]
+members = [
+    "common",
+    "face-detection", 
+    "face-embedding"
+]
+resolver = "2"
