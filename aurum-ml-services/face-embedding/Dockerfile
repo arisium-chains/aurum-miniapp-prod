@@ -1,26 +1,25 @@
-# Use Rust official image as base
-FROM rustlang/rust:nightly as builder
+# Build stage
+FROM rust:1.82-slim-bookworm as builder
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    cmake \
-    clang \
-    libclang-dev \
+    pkg-config \
+    libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Create app directory
 WORKDIR /app
 
-# Copy workspace files
-COPY Cargo.toml Cargo.lock ./
+# Copy the face-embedding service files
+COPY face-embedding/Cargo.toml ./face-embedding/
+COPY face-detection/Cargo.toml ./face-detection/
 COPY common ./common
-COPY face-detection ./face-detection
-COPY face-embedding ./face-embedding
+COPY face-embedding/src ./face-embedding/src
 
-# Build the face-embedding service
-RUN cargo build --release --bin face-embedding
+# Build the service
+WORKDIR /app/face-embedding
+RUN cargo build --release
 
-# Production stage
+# Runtime stage
 FROM debian:bookworm-slim
 
 # Install runtime dependencies
@@ -29,22 +28,13 @@ RUN apt-get update && apt-get install -y \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Create app directory
 WORKDIR /app
 
 # Copy the binary from builder stage
-COPY --from=builder /app/target/release/face-embedding ./face-embedding
-
-# Copy default models directory
-RUN mkdir -p ./models
+COPY --from=builder /app/target/release/face-embedding /app/face-embedding
 
 # Expose port
-EXPOSE 8002
-
-# Environment variables
-ENV PORT=8002
-ENV MODEL_PATH=/app/models/face_embedding_model.onnx
-ENV RUST_LOG=info
+EXPOSE 8080
 
 # Run the application
 CMD ["./face-embedding"]

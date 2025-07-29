@@ -4,7 +4,6 @@ use base64::Engine;
 use image::io::Reader as ImageReader;
 use std::io::Cursor;
 use crate::processors::FaceDetector;
-use crate::models::FaceDetection;
 use ort::Error as OrtError;
 
 

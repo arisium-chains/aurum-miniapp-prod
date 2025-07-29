@@ -1,0 +1,18 @@
+[build]
+# Use faster linker for development
+rustflags = ["-C", "link-arg=-fuse-ld=lld"]
+
+[profile.dev]
+# Faster compilation for development
+opt-level = 0
+debug = true
+incremental = true
+codegen-units = 256
+
+[profile.release]
+# Optimized for production
+opt-level = 3
+debug = false
+lto = true
+codegen-units = 1
+panic = "abort"
