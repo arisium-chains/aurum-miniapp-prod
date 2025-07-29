@@ -1,0 +1,125 @@
+# Fly.io configuration for Aurum Circle Attractiveness Engine (Real ML Mode)
+app = "aurum-circle-attractiveness-ml"
+primary_region = "sea" # Seattle for low latency to West Coast users
+
+[experimental]
+  auto_rollback = true
+
+[build]
+  dockerfile = "Dockerfile.attractiveness"
+
+[env]
+  NODE_ENV = "production"
+  NEXT_TELEMETRY_DISABLED = "1"
+  
+  # ML Model Configuration (Real ML Mode)
+  USE_REAL_ML = "true"
+  ML_MODE = "production"
+  TF_CPP_MIN_LOG_LEVEL = "2"
+  NODE_OPTIONS = "--max-old-space-size=4096"
+  
+  # TensorFlow.js Configuration
+  TFJS_BACKEND = "webgl"
+  TFJS_WEBGL_VERSION = "2"
+  TFJS_WEBGL_CPU_FORWARD = "false"
+  
+  # Model Paths
+  FACE_DETECTION_MODEL_PATH = "/app/public/models/face_detection/model.json"
+  FACE_EMBEDDING_MODEL_PATH = "/app/public/models/arcface/model.json"
+  MODEL_CACHE_SIZE = "2"
+  
+  # Vector Store Configuration  
+  VECTOR_STORE_PATH = "/data/embeddings"
+  MAX_USERS = "50000"
+  EMBEDDING_CACHE_SIZE = "2000"
+  SIMILARITY_BATCH_SIZE = "50"
+  
+  # Performance Tuning
+  UV_THREADPOOL_SIZE = "8"
+  LIBUV_THREADPOOL_SIZE = "8"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = false # Keep running for real-time scoring
+  auto_start_machines = true
+  min_machines_running = 1
+  max_machines_running = 3
+
+  [http_service.concurrency]
+    type = "requests"
+    hard_limit = 100
+    soft_limit = 80
+
+[[services]]
+  protocol = "tcp"
+  internal_port = 3000
+  processes = ["app"]
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+    force_https = true
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+  [services.concurrency]
+    type = "requests"
+    hard_limit = 100
+    soft_limit = 80
+
+  [[services.tcp_checks]]
+    interval = "15s"
+    timeout = "2s"
+    grace_period = "5s"
+
+  [[services.http_checks]]
+    interval = "30s"
+    timeout = "10s"
+    grace_period = "30s"
+    method = "GET"
+    path = "/api/attractiveness/stats"
+    protocol = "https"
+    tls_skip_verify = false
+
+# Persistent volume for vector embeddings
+[[mounts]]
+  source = "aurum_embeddings_vol"
+  destination = "/data"
+
+# Memory and CPU allocation (Optimized for Real ML Models)
+[vm]
+  cpu_kind = "performance" # High-performance CPU for ML computations
+  cpus = 4 # 4 cores for parallel ML inference
+  memory_mb = 4096 # 4GB RAM for TensorFlow.js models + vector operations
+  
+# Alternative configuration for lighter workloads
+# [vm]
+#   cpu_kind = "shared" # More cost-effective option
+#   cpus = 2
+#   memory_mb = 2048
+
+# Scaling configuration
+[metrics]
+  port = 9091
+  path = "/metrics"
+
+[[services.http_checks]]
+  interval = "30s"
+  timeout = "10s"
+  grace_period = "30s"
+  method = "GET"
+  path = "/api/attractiveness/stats"
+
+# Environment-specific overrides
+[deploy]
+  strategy = "canary" # Gradual deployment for safety
+
+# Secrets (set via `fly secrets set`)
+# - NFT_VERIFICATION_KEY
+# - WLD_VERIFICATION_KEY  
+# - R2_ACCESS_KEY_ID (for backup storage)
+# - R2_SECRET_ACCESS_KEY
+# - R2_BUCKET_NAME

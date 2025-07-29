@@ -1,0 +1,16 @@
+{
+  "face_detection": {
+    "model_path": "/models/face_detection/model.json",
+    "input_size": [192, 192],
+    "confidence_threshold": 0.7,
+    "backend": "webgl"
+  },
+  "face_embedding": {
+    "model_path": "/models/arcface/model.json",
+    "input_size": [112, 112],
+    "output_size": 512,
+    "backend": "webgl"
+  },
+  "version": "1.0.0",
+  "last_updated": "2025-07-25T07:31:12Z"
+}
