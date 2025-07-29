@@ -1,5 +1,5 @@
 # Use Rust official image as base
-FROM rust:1.80 as builder
+FROM rustlang/rust:nightly as builder
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
