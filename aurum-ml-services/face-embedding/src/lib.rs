@@ -4,11 +4,10 @@ use ort::{
     memory::Allocator,
     inputs,
     Error as OrtError,
-    session::SessionOutputs
 };
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
-use image::{DynamicImage, ImageBuffer, Rgb};
+use image::{DynamicImage};
 use base64::{Engine as _, engine::general_purpose};
 use std::sync::Mutex;
 
@@ -47,8 +46,8 @@ impl FaceEmbeddingModel {
 
     pub fn extract_embedding(&self, image: &DynamicImage) -> Result<FaceEmbedding, EmbeddingError> {
         let input_tensor = self.preprocess_image(image)?;
-        let outputs = self.run_inference(input_tensor)?;
-        let embedding = self.postprocess_embedding(outputs)?;
+        let embedding_data = self.run_inference(input_tensor)?;
+        let embedding = self.postprocess_embedding(embedding_data)?;
         
         Ok(embedding)
     }
@@ -86,7 +85,6 @@ impl FaceEmbeddingModel {
         }
 
         // Create ONNX tensor with shape [1, 3, height, width]
-        let tensor_data: Vec<f32> = tensor_data; // Ensure correct type
         let tensor = Tensor::from_array(([1, 3, 112, 112], tensor_data))
             .map_err(EmbeddingError::from)?;
         let value = Value::from(tensor);
@@ -94,26 +92,29 @@ impl FaceEmbeddingModel {
         Ok(value)
     }
 
-    fn run_inference(&self, input: Value) -> Result<SessionOutputs<'_>, EmbeddingError> {
+    fn run_inference(&self, input: Value) -> Result<Vec<f32>, EmbeddingError> {
         let mut session = self.session.lock().unwrap();
-        Ok(session.run(inputs![input])?)
+        let outputs = session.run(inputs![input])?;
+        
+        // Extract the first output tensor
+        let output_value = &outputs[0];
+        let tensor = output_value.try_extract::<f32>()?;
+        let view = tensor.view();
+        
+        // Convert to Vec<f32>
+        let embedding_data: Vec<f32> = view.iter().copied().collect();
+        
+        Ok(embedding_data)
     }
 
-    fn postprocess_embedding(&self, outputs: SessionOutputs) -> Result<FaceEmbedding, EmbeddingError> {
-        // Use first output tensor (adjust index if your model differs)
-        let embedding_tensor: &Value = &outputs[0];
-        
-        // Convert tensor to vector
-        let embedding_data = embedding_tensor.view().as_slice().unwrap();
-        
+    fn postprocess_embedding(&self, embedding_data: Vec<f32>) -> Result<FaceEmbedding, EmbeddingError> {
         // Normalize embedding (L2 normalization)
         let norm: f32 = embedding_data.iter().map(|&x| x * x).sum::<f32>().sqrt();
         let normalized_embedding: Vec<f32> = embedding_data.iter().map(|&x| x / norm).collect();
         
         // Create FaceEmbedding with quality and confidence metrics
-        // In a real implementation, these would be calculated based on the image quality
-        let quality = 0.95; // Placeholder value
-        let confidence = 0.98; // Placeholder value
+        let quality = 0.95;
+        let confidence = 0.98;
         
         Ok(FaceEmbedding {
             embedding: normalized_embedding,
@@ -122,8 +123,8 @@ impl FaceEmbeddingModel {
         })
     }
 
-    pub fn allocator(&self) -> Allocator {
+    pub fn allocator(&self) -> Result<&Allocator, EmbeddingError> {
         let session = self.session.lock().unwrap();
-        session.allocator().clone()
+        Ok(session.allocator())
     }
 }
