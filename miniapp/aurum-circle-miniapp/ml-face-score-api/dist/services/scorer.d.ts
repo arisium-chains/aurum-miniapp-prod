@@ -1,3 +1,4 @@
+import { SimulatedMLResult } from "../types";
 export declare function loadModels(): Promise<boolean>;
 export declare function getMLStatus(): Promise<{
     status: string;
@@ -13,9 +14,6 @@ export declare function getMLStatus(): Promise<{
     timestamp: string;
     models?: undefined;
 }>;
-export declare function processImage(imagePath: string): Promise<{
-    score: number;
-    vibe: string;
-    rank: number;
-}>;
+export declare function processImage(imagePath: string): Promise<SimulatedMLResult>;
+export declare function processImageBase64(imageBase64: string): Promise<import("../types").ProcessedFaceResult | SimulatedMLResult>;
 //# sourceMappingURL=scorer.d.ts.map

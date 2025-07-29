@@ -1,1 +1,0 @@
-import './workers/faceScoring.worker';

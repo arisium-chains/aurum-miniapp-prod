@@ -1,85 +1,95 @@
-import express from 'express';
-import multer from 'multer';
-import { v4 as uuidv4 } from 'uuid';
-import { Queue } from 'bullmq';
-import Redis from 'ioredis';
-import path from 'path';
-import fs from 'fs';
+import express from "express";
+import dotenv from "dotenv";
+import { faceScoreService } from "./services/faceScoreService";
+import { logger } from "./utils/logger";
 
-import scoreRouter from './api/score';
-import statusRouter from './api/status';
-import resultRouter from './api/result';
-import mlStatusRouter from './api/ml-status';
+// Load environment variables
+dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
-// Redis connection
-const redisUrl = process.env.REDIS_URL || 'redis://localhost:6380';
-const redis = new Redis(redisUrl, {
-  maxRetriesPerRequest: null
-});
+// Body parsing middleware
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Create queue
-export const faceScoringQueue = new Queue('faceScoring', { connection: redis });
-
-// Middleware
-app.use(express.json({ limit: '2mb' }));
-app.use(express.urlencoded({ extended: true, limit: '2mb' }));
-
-// Multer setup for file uploads (we'll keep this for potential future use, but it's not exported)
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const tempDir = path.join(__dirname, '../temp');
-    if (!fs.existsSync(tempDir)) {
-      fs.mkdirSync(tempDir, { recursive: true });
-    }
-    cb(null, tempDir);
-  },
-  filename: (req, file, cb) => {
-    cb(null, `${uuidv4()}-${file.originalname}`);
-  }
-});
-
-const upload = multer({ 
-  storage,
-  limits: {
-    fileSize: 2 * 1024 * 1024 // 2MB limit
-  }
+// Logging middleware
+app.use((req, res, next) => {
+  logger.info(`${req.method} ${req.path} - ${req.ip}`);
+  next();
 });
 
 // Routes
-app.use('/api/score', scoreRouter);
-app.use('/api/status', statusRouter);
-app.use('/api/result', resultRouter);
-app.use('/api/ml-status', mlStatusRouter);
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+app.get("/", (req, res) => {
+  res.json({
+    message: "ML Face Score API",
+    version: "1.0.0",
+    status: "running",
+    timestamp: new Date().toISOString(),
+  });
 });
 
-app.listen(port, () => {
-  console.log(`Face scoring API listening on port ${port}`);
-});
+app.post("/api/face-score", async (req, res) => {
+  try {
+    const { imageUrl, imageBase64 } = req.body;
 
-// Auto-cleanup processed temp files every 24h
-setInterval(() => {
-  const tempDir = path.join(__dirname, '../temp');
-  if (fs.existsSync(tempDir)) {
-    const files = fs.readdirSync(tempDir);
-    const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
-    
-    files.forEach(file => {
-      const filePath = path.join(tempDir, file);
-      const stat = fs.statSync(filePath);
-      
-      if (stat.mtime.getTime() < oneDayAgo) {
-        fs.unlinkSync(filePath);
-        console.log(`Cleaned up old temp file: ${file}`);
-      }
+    if (!imageUrl && !imageBase64) {
+      return res.status(400).json({
+        error: "Either imageUrl or imageBase64 is required",
+      });
+    }
+
+    const result = await faceScoreService.scoreFace(imageUrl || imageBase64);
+
+    res.json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    logger.error("Error processing face score:", error);
+    res.status(500).json({
+      error: "Internal server error",
+      message: error instanceof Error ? error.message : "Unknown error",
     });
   }
-}, 24 * 60 * 60 * 1000); // Every 24 hours
+});
+
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
+});
+
+// 404 handler
+app.use("*", (req, res) => {
+  res.status(404).json({
+    error: "Not Found",
+    message: "The requested resource was not found",
+  });
+});
+
+// Error handler
+app.use(
+  (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+  ) => {
+    logger.error("Unhandled error:", err);
+    res.status(500).json({
+      error: "Internal server error",
+      message: err instanceof Error ? err.message : "Unknown error",
+    });
+  }
+);
+
+// Start server
+app.listen(PORT, () => {
+  logger.info(`Server running on port ${PORT}`);
+  logger.info(`Environment: ${process.env.NODE_ENV || "development"}`);
+});
 
 export default app;

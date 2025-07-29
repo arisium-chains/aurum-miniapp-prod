@@ -1,50 +1,30 @@
-// Types for the ML processing results
-
-export interface FaceDetectionResult {
-  bbox: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  };
-  landmarks?: {
-    left_eye: [number, number];
-    right_eye: [number, number];
-    nose: [number, number];
-    left_mouth: [number, number];
-    right_mouth: [number, number];
-  };
-  confidence: number;
-  // Add other properties as needed
+export interface FaceScoreRequest {
+  imageData: string;
+  userId?: string;
+  sessionId?: string;
 }
 
-export interface FaceEmbeddingResult {
-  embedding: number[];
-  quality: number;
-  confidence: number;
-  // Add other properties as needed
-}
-
-export interface ProcessedFaceResult {
-  embedding: number[];
-  quality: number;
-  frontality: number;
-  symmetry: number;
-  resolution: number;
-  confidence: number;
-}
-
-export interface SimulatedMLResult {
+export interface FaceScoreResponse {
   score: number;
-  vibe: string;
-  rank: number;
+  confidence: number;
+  features: {
+    symmetry: number;
+    clarity: number;
+    lighting: number;
+  };
+  processingTime: number;
+  timestamp: string;
 }
 
-export interface HealthCheckResult {
+export interface HealthResponse {
   status: "healthy" | "unhealthy";
-  services?: {
-    faceDetection: any;
-    faceEmbedding: any;
-  };
-  error?: string;
+  timestamp: string;
+  version: string;
+  uptime: number;
+}
+
+export interface ErrorResponse {
+  error: string;
+  message: string;
+  timestamp: string;
 }

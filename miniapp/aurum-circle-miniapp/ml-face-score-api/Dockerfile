@@ -2,8 +2,6 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Install Python and build tools for onnxruntime-node
-RUN apk add --no-cache python3 py3-pip make g++
 
 # Copy package files
 COPY package*.json ./

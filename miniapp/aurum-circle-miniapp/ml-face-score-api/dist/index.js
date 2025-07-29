@@ -18,8 +18,10 @@ const ml_status_1 = __importDefault(require("./api/ml-status"));
 const app = (0, express_1.default)();
 const port = process.env.PORT || 3000;
 // Redis connection
-const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-const redis = new ioredis_1.default(redisUrl);
+const redisUrl = process.env.REDIS_URL || 'redis://localhost:6380';
+const redis = new ioredis_1.default(redisUrl, {
+    maxRetriesPerRequest: null
+});
 // Create queue
 exports.faceScoringQueue = new bullmq_1.Queue('faceScoring', { connection: redis });
 // Middleware
