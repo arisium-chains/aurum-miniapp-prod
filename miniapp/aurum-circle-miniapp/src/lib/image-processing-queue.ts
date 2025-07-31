@@ -10,7 +10,7 @@ import { mlModelIntegration } from "@/lib/ml-models/model-integration";
 
 // Initialize Redis connection
 const redisConnection = new Redis(
-  process.env.REDIS_URL || "redis://localhost:6379",
+  process.env.REDIS_URL || "redis://redis:6379",
   {
     maxRetriesPerRequest: null,
   }

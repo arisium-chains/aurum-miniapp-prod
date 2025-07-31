@@ -11,7 +11,7 @@ const envSchema = Joi.object({
   HOST: Joi.string().default("0.0.0.0"),
 
   // Redis Configuration
-  REDIS_URL: Joi.string().default("redis://localhost:6379"),
+  REDIS_URL: Joi.string().default("redis://redis:6379"),
   REDIS_HOST: Joi.string().default("localhost"),
   REDIS_PORT: Joi.number().default(6379),
   REDIS_PASSWORD: Joi.string().allow("").default(""),
