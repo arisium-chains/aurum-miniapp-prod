@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import { faceScoreService } from "./services/faceScoreService";
 import { logger } from "./utils/logger";
-import Bull from "bull";
+import * as Bull from "bull";
 import { createRedisClient } from "./utils/redis";
 
 // Load environment variables
