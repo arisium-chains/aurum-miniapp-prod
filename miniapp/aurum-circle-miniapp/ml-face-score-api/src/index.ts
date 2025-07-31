@@ -10,7 +10,8 @@ dotenv.config();
 
 // Create Redis client and Bull queue
 const redisClient = createRedisClient();
-const faceScoringQueue = new Bull("faceScoring", { redis: redisClient });
+const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
+const faceScoringQueue = new Bull("faceScoring", redisUrl);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
