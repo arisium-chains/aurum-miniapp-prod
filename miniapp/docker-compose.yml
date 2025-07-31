@@ -98,3 +98,7 @@ services:
 volumes:
   redis_data:
   qdrant_storage:
+
+networks:
+  default:
+    name: aurum-network
