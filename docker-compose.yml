@@ -81,7 +81,7 @@ services:
 
 networks:
   aurum-network:
-    external: true
+    driver: bridge
 
 volumes:
   qdrant_storage:
