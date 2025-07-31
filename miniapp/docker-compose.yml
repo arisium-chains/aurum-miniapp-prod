@@ -14,9 +14,12 @@ services:
       - QDRANT_HOST=qdrant
       - QDRANT_PORT=6337
     depends_on:
-      - redis
-      - qdrant
-      - ml-api
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+      ml-api:
+        condition: service_started
     volumes:
       - ./aurum-circle-miniapp/public/models:/app/public/models
     restart: unless-stopped
@@ -32,7 +35,8 @@ services:
       - NODE_ENV=production
       - REDIS_URL=redis://redis:6379
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     volumes:
       - ./aurum-circle-miniapp/ml-face-score-api/temp:/app/temp
       - ./aurum-circle-miniapp/ml-face-score-api/models:/app/models
@@ -47,7 +51,8 @@ services:
       - NODE_ENV=production
       - REDIS_URL=redis://redis:6379
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     volumes:
       - ./aurum-circle-miniapp/ml-face-score-api/temp:/app/temp
       - ./aurum-circle-miniapp/ml-face-score-api/models:/app/models
@@ -63,6 +68,11 @@ services:
       - redis_data:/data
     command: redis-server --appendonly yes
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
 
   # Qdrant vector database
   qdrant:
