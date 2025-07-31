@@ -28,3 +28,22 @@ export interface ErrorResponse {
   message: string;
   timestamp: string;
 }
+
+export interface SimulatedMLResult {
+  score: number;
+  confidence: number;
+  features: {
+    symmetry: number;
+    clarity: number;
+    lighting: number;
+  };
+  processingTime: number;
+  timestamp: string;
+}
+
+export interface ProcessedFaceResult {
+  success: boolean;
+  data?: SimulatedMLResult;
+  error?: string;
+  jobId?: string;
+}
