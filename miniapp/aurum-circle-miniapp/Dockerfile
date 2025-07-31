@@ -11,7 +11,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies (including dev dependencies for build)
-RUN npm ci --ignore-scripts
+RUN npm install --ignore-scripts
 
 # Copy the rest of the application code
 COPY . .
