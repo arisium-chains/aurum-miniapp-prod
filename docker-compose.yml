@@ -72,7 +72,7 @@ services:
       context: ./nginx
       dockerfile: Dockerfile
     ports:
-      - "3002:80"
+      - "80:80"
     depends_on:
       - app
       - ml-api
