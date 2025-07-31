@@ -6,8 +6,8 @@ services:
     build:
       context: ./miniapp/aurum-circle-miniapp
       dockerfile: Dockerfile
-    ports:
-      - "3000:3000"
+    # ports: # Expose to host only for debugging, remove for production
+    #   - "3000:3000"
     environment:
       - NODE_ENV=production
       - REDIS_URL=redis://redis:6379
