@@ -36,9 +36,15 @@ export interface SimulatedMLResult {
     symmetry: number;
     clarity: number;
     lighting: number;
+    vibe?: number;
   };
   processingTime: number;
   timestamp: string;
+  embedding?: number[];
+  quality?: number;
+  frontality?: number;
+  resolution?: string;
+  symmetry?: number;
 }
 
 export interface ProcessedFaceResult {

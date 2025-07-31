@@ -130,8 +130,19 @@ export async function processImage(
 
     return {
       score: parseFloat(score.toFixed(4)),
-      vibe,
-      rank: parseFloat(rank.toFixed(2)),
+      confidence: parseFloat((Math.random() * 0.3 + 0.7).toFixed(4)), // Mock confidence
+      features: {
+        symmetry: parseFloat((Math.random() * 0.3 + 0.6).toFixed(4)),
+        clarity: parseFloat((Math.random() * 0.3 + 0.6).toFixed(4)),
+        lighting: parseFloat((Math.random() * 0.3 + 0.6).toFixed(4)),
+        vibe: parseFloat((Math.random() * 0.3 + 0.6).toFixed(4)),
+      },
+      processingTime: Date.now(),
+      timestamp: new Date().toISOString(),
+      embedding,
+      quality: parseFloat((Math.random() * 0.3 + 0.6).toFixed(4)),
+      frontality: parseFloat((Math.random() * 0.3 + 0.6).toFixed(4)),
+      resolution: "1920x1080",
     };
   } catch (error: any) {
     console.error("Error processing image:", error);

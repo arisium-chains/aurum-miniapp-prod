@@ -1,23 +1,6 @@
 import * as ort from "onnxruntime-node";
 import { processImage as simulatedProcessImage } from "./scorer";
-
-interface ProcessedFaceResult {
-  embedding: number[];
-  quality: number;
-  frontality: number;
-  symmetry: number;
-  resolution: number;
-  confidence: number;
-}
-
-interface SimulatedMLResult {
-  embedding: number[];
-  quality: number;
-  frontality: number;
-  symmetry: number;
-  resolution: number;
-  confidence: number;
-}
+import { ProcessedFaceResult, SimulatedMLResult } from "../types";
 
 interface FaceDetectionResult {
   bbox: {
@@ -125,12 +108,19 @@ export class HybridScorer {
         const confidence = 0.9; // Placeholder
 
         return {
+          score: 0.85, // Placeholder score
+          confidence: confidence,
+          features: {
+            symmetry: this.calculateSymmetry(face),
+            clarity: 0.8, // Placeholder
+            lighting: 0.8, // Placeholder
+          },
+          processingTime: Date.now(),
+          timestamp: new Date().toISOString(),
           embedding: embedding,
           quality: quality,
           frontality: this.calculateFrontality(face),
-          symmetry: this.calculateSymmetry(face),
-          resolution: this.calculateResolution(face, imageBase64),
-          confidence: confidence,
+          resolution: this.calculateResolution(face, imageBase64).toString(),
         };
       } catch (error: any) {
         console.warn(
