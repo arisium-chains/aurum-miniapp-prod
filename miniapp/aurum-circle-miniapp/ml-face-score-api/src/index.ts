@@ -2,7 +2,7 @@ import express, { Request, Response, NextFunction } from "express";
 import dotenv from "dotenv";
 import { faceScoreService } from "./services/faceScoreService";
 import { logger } from "./utils/logger";
-import * as Bull from "bull";
+import Bull from "bull";
 import { createRedisClient } from "./utils/redis";
 
 // Load environment variables
@@ -10,7 +10,7 @@ dotenv.config();
 
 // Create Redis client and Bull queue
 const redisClient = createRedisClient();
-const faceScoringQueue = new Bull.Queue("faceScoring", { redis: redisClient });
+const faceScoringQueue = new Bull("faceScoring", { redis: redisClient });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
