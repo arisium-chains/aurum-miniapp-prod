@@ -15,6 +15,7 @@ services:
       - QDRANT_PORT=6333
     depends_on:
       - qdrant
+      - redis
     volumes:
       - ./miniapp/aurum-circle-miniapp/public/models:/app/public/models
     restart: unless-stopped
