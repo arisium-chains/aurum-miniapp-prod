@@ -71,7 +71,6 @@ services:
     build:
       context: ./nginx
       dockerfile: Dockerfile
-      no-cache: true
     ports:
       - "3002:80"
     depends_on:
