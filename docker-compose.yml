@@ -50,6 +50,21 @@ services:
     networks:
       - aurum-network
 
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - aurum-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
   # Nginx reverse proxy for production
   nginx:
     image: nginx:alpine
@@ -66,7 +81,8 @@ services:
 
 networks:
   aurum-network:
-    driver: bridge
+    external: true
 
 volumes:
   qdrant_storage:
+  redis_data:
