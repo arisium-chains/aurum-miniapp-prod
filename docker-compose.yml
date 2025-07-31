@@ -69,7 +69,7 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - "80:80"
+      - "3002:80"
     volumes:
       - ./nginx/conf/nginx.conf:/etc/nginx/conf.d
     depends_on:
