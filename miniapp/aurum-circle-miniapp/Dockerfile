@@ -10,8 +10,8 @@ WORKDIR /app
 # Copy package.json and package-lock.json (if available)
 COPY package*.json ./
 
-# Install dependencies (without running postinstall script)
-RUN npm ci --only=production --ignore-scripts
+# Install dependencies (including dev dependencies for build)
+RUN npm ci --ignore-scripts
 
 # Copy the rest of the application code
 COPY . .
