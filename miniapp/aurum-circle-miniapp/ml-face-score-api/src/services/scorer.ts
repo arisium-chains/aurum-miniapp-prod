@@ -73,9 +73,10 @@ async function scoreFace(embedding: number[]) {
 }
 
 // Mock function to simulate vibe interpretation
-function interpretVibe(score: number) {
-  const vibes = ["dreamy", "charming", "radiant", "magnetic", "captivating"];
-  return vibes[Math.floor(Math.random() * vibes.length)];
+function interpretVibe(score: number): number {
+  // Return a number between 0.5 and 1.0 as a mock vibe score
+  // This could be based on the input score or random
+  return 0.5 + Math.random() * 0.5;
 }
 
 // Main function to process an image and return scoring results
@@ -130,8 +131,20 @@ export async function processImage(
 
     return {
       score: parseFloat(score.toFixed(4)),
-      vibe,
-      rank: parseFloat(rank.toFixed(2)),
+      confidence: parseFloat(score.toFixed(4)), // Using score as a proxy for confidence
+      features: {
+        symmetry: 0.85, // Placeholder
+        clarity: 0.85, // Placeholder
+        lighting: 0.85, // Placeholder
+        vibe: vibe, // This is now correctly placed
+      },
+      processingTime: Date.now(), // Placeholder
+      timestamp: new Date().toISOString(),
+      embedding: embedding, // This was calculated but not returned
+      quality: 0.85, // Placeholder
+      frontality: 0.85, // Placeholder
+      resolution: 0.85, // Placeholder
+      symmetry: 0.85, // Placeholder, also in features
     };
   } catch (error: any) {
     console.error("Error processing image:", error);
