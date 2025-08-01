@@ -6,8 +6,8 @@ services:
     build:
       context: ./miniapp/aurum-circle-miniapp
       dockerfile: Dockerfile
-    # ports: # Expose to host only for debugging, remove for production
-    #   - "3000:3000"
+    ports:
+      - "80:3000"
     environment:
       - NODE_ENV=production
       - REDIS_URL=redis://redis:6379
@@ -27,8 +27,6 @@ services:
   # Qdrant vector database
   qdrant:
     image: qdrant/qdrant:latest
-    # ports: # Expose to host only for debugging, remove for production
-    #   - "6333:6333"
     volumes:
       - qdrant_storage:/qdrant/storage
     restart: unless-stopped
@@ -40,8 +38,6 @@ services:
     build:
       context: ./miniapp/aurum-circle-miniapp/ml-face-score-api
       dockerfile: Dockerfile
-    # ports: # Expose to host only for debugging, remove for production
-    #   - "3001:3000"
     environment:
       - NODE_ENV=production
     depends_on:
@@ -55,8 +51,6 @@ services:
 
   redis:
     image: redis:latest
-    # ports: # Expose to host only for debugging, remove for production
-    #   - "6380:6379"
     volumes:
       - redis_data:/data
     restart: unless-stopped
@@ -67,20 +61,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-
-  # Nginx reverse proxy for production
-  nginx:
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
-    ports:
-      - "80:80"
-    depends_on:
-      - app
-      - ml-api
-    restart: unless-stopped
-    networks:
-      - aurum-network
 
 networks:
   aurum-network:
