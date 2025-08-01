@@ -12,6 +12,9 @@ RUN npm install
 # Copy source code
 COPY . .
 
+# Ensure TypeScript compiler is available for build
+RUN npm install --include=dev typescript
+
 # Build TypeScript
 RUN npm run build
 
