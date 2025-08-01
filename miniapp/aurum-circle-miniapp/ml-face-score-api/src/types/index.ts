@@ -43,7 +43,7 @@ export interface SimulatedMLResult {
   embedding?: number[];
   quality?: number;
   frontality?: number;
-  resolution?: string;
+  resolution?: number;
   symmetry?: number;
 }
 
