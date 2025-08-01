@@ -27,8 +27,8 @@ services:
   # Qdrant vector database
   qdrant:
     image: qdrant/qdrant:latest
-    ports:
-      - "6333:6333"
+    # ports: # Expose to host only for debugging, remove for production
+    #   - "6333:6333"
     volumes:
       - qdrant_storage:/qdrant/storage
     restart: unless-stopped
@@ -40,8 +40,8 @@ services:
     build:
       context: ./miniapp/aurum-circle-miniapp/ml-face-score-api
       dockerfile: Dockerfile
-    ports:
-      - "3001:3000"
+    # ports: # Expose to host only for debugging, remove for production
+    #   - "3001:3000"
     environment:
       - NODE_ENV=production
     depends_on:
@@ -55,8 +55,8 @@ services:
 
   redis:
     image: redis:latest
-    ports:
-      - "6380:6379"
+    # ports: # Expose to host only for debugging, remove for production
+    #   - "6380:6379"
     volumes:
       - redis_data:/data
     restart: unless-stopped
@@ -85,6 +85,10 @@ services:
 networks:
   aurum-network:
     driver: bridge
+    name: aurum-network-prod
+    ipam:
+      config:
+        - subnet: 172.21.0.0/16
 
 volumes:
   qdrant_storage:
