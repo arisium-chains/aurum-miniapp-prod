@@ -41,7 +41,10 @@ export class RedisCache {
   /**
    * Cache leaderboard data
    */
-  static async cacheLeaderboard(key: string, data: unknown): Promise<void> {
+  static async cacheLeaderboard(
+    key: string,
+    data: Record<string, unknown>
+  ): Promise<void> {
     try {
       await redis.setex(`leaderboard:${key}`, CACHE_TTL, JSON.stringify(data));
     } catch (error) {
@@ -52,7 +55,9 @@ export class RedisCache {
   /**
    * Get cached leaderboard data
    */
-  static async getLeaderboard(key: string): Promise<unknown | null> {
+  static async getLeaderboard(
+    key: string
+  ): Promise<Record<string, unknown> | null> {
     try {
       const data = await redis.get(`leaderboard:${key}`);
       return data ? JSON.parse(data) : null;
