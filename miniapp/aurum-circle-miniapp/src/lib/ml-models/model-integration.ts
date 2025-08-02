@@ -6,7 +6,7 @@
 import { realFaceDetector, RealFaceDetection } from "./face-detection";
 import {
   realFaceEmbeddingExtractor,
-  RealFaceEmbeddingExtractor,
+  RealFaceEmbeddingExtractor, // eslint-disable-line @typescript-eslint/no-unused-vars
 } from "./face-embeddings";
 
 export interface MLProcessingResult {
@@ -326,8 +326,8 @@ export class MLModelIntegration {
       }
 
       return { status, details, latency };
-    } catch (error) {
-      console.error("Health check failed:", error);
+    } catch (_error) {
+      console.error("Health check failed");
       return {
         status: "unhealthy",
         details: {
