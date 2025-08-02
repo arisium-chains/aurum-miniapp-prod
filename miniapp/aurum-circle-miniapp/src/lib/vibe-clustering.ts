@@ -133,9 +133,10 @@ export class VibeClusterer {
   /**
    * Extract vibe-relevant features from full embedding
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private extractVibeFeatures(
     embedding: number[],
-    face: ProcessedFace
+    _face: ProcessedFace
   ): number[] {
     const vibeFeatures = new Array(this.VIBE_DIMENSIONS);
 
@@ -146,28 +147,28 @@ export class VibeClusterer {
       // Extract different aspects of the face for different vibe dimensions
       switch (i) {
         case 0: // Intensity/Drama
-          feature = this.extractIntensityFeature(embedding, face);
+          feature = this.extractIntensityFeature(embedding, _face);
           break;
         case 1: // Warmth/Coolness
-          feature = this.extractWarmthFeature(embedding, face);
+          feature = this.extractWarmthFeature(embedding, _face);
           break;
         case 2: // Softness/Hardness
-          feature = this.extractSoftnessFeature(embedding, face);
+          feature = this.extractSoftnessFeature(embedding, _face);
           break;
         case 3: // Classic/Modern
-          feature = this.extractStyleFeature(embedding, face);
+          feature = this.extractStyleFeature(embedding, _face);
           break;
         case 4: // Energy Level
-          feature = this.extractEnergyFeature(embedding, face);
+          feature = this.extractEnergyFeature(embedding, _face);
           break;
         case 5: // Sophistication
-          feature = this.extractSophisticationFeature(embedding, face);
+          feature = this.extractSophisticationFeature(embedding, _face);
           break;
         case 6: // Naturalness
-          feature = this.extractNaturalnessFeature(embedding, face);
+          feature = this.extractNaturalnessFeature(embedding, _face);
           break;
         case 7: // Uniqueness
-          feature = this.extractUniquenessFeature(embedding, face);
+          feature = this.extractUniquenessFeature(embedding, _face);
           break;
       }
 
@@ -182,7 +183,7 @@ export class VibeClusterer {
    */
   private extractIntensityFeature(
     embedding: number[],
-    face: ProcessedFace
+    _face: ProcessedFace
   ): number {
     // Use embedding dimensions that correlate with eye/eyebrow intensity
     const eyeRegion = embedding.slice(0, 100);
@@ -192,7 +193,7 @@ export class VibeClusterer {
       }, 0) / 100;
 
     // Boost with symmetry (asymmetry can indicate intensity)
-    const asymmetryBoost = (1 - face.symmetry) * 0.3;
+    const asymmetryBoost = (1 - _face.symmetry) * 0.3;
 
     return Math.tanh(intensity + asymmetryBoost); // Normalize to [-1, 1]
   }
@@ -202,14 +203,14 @@ export class VibeClusterer {
    */
   private extractWarmthFeature(
     embedding: number[],
-    face: ProcessedFace
+    _face: ProcessedFace
   ): number {
     // Use mouth region embeddings for warmth detection
     const mouthRegion = embedding.slice(200, 300);
     const warmth = mouthRegion.reduce((sum, val) => sum + val, 0) / 100;
 
     // Face quality can indicate warmth (approachability)
-    const qualityBoost = (face.quality - 0.5) * 0.4;
+    const qualityBoost = (_face.quality - 0.5) * 0.4;
 
     return Math.tanh(warmth + qualityBoost);
   }
@@ -219,7 +220,7 @@ export class VibeClusterer {
    */
   private extractSoftnessFeature(
     embedding: number[],
-    face: ProcessedFace
+    _face: ProcessedFace
   ): number {
     // Use face shape features for softness
     const faceShape = embedding.slice(300, 400);
@@ -229,7 +230,7 @@ export class VibeClusterer {
       }, 0) / 100;
 
     // High frontality often correlates with softer appearance
-    const frontalityBoost = face.frontality * 0.2;
+    const frontalityBoost = _face.frontality * 0.2;
 
     return Math.tanh(softness + frontalityBoost);
   }
@@ -239,7 +240,7 @@ export class VibeClusterer {
    */
   private extractStyleFeature(
     embedding: number[],
-    face: ProcessedFace
+    _face: ProcessedFace
   ): number {
     // Use general features for style detection
     const generalFeatures = embedding.slice(400, 512);
@@ -249,7 +250,7 @@ export class VibeClusterer {
       }, 0) / 112;
 
     // High resolution might indicate modern photography/style
-    const resolutionBoost = (face.resolution - 0.5) * 0.3;
+    const resolutionBoost = (_face.resolution - 0.5) * 0.3;
 
     return Math.tanh(modernity + resolutionBoost);
   }
@@ -259,7 +260,7 @@ export class VibeClusterer {
    */
   private extractEnergyFeature(
     embedding: number[],
-    face: ProcessedFace
+    _face: ProcessedFace
   ): number {
     // Combine multiple regions for energy detection
     const eyeEnergy =
@@ -272,7 +273,7 @@ export class VibeClusterer {
     const combinedEnergy = (eyeEnergy + mouthEnergy) / 2;
 
     // High quality and frontality often indicate more energetic presentation
-    const presentationBoost = (face.quality + face.frontality) * 0.15;
+    const presentationBoost = (_face.quality + _face.frontality) * 0.15;
 
     return Math.tanh(combinedEnergy + presentationBoost);
   }
@@ -282,7 +283,7 @@ export class VibeClusterer {
    */
   private extractSophisticationFeature(
     embedding: number[],
-    face: ProcessedFace
+    _face: ProcessedFace
   ): number {
     // Use nose and overall face features for sophistication
     const noseRegion = embedding.slice(100, 200);
@@ -292,7 +293,7 @@ export class VibeClusterer {
       }, 0) / 100;
 
     // High symmetry often correlates with sophistication
-    const symmetryBoost = face.symmetry * 0.4;
+    const symmetryBoost = _face.symmetry * 0.4;
 
     return Math.tanh(sophistication + symmetryBoost);
   }
@@ -302,7 +303,7 @@ export class VibeClusterer {
    */
   private extractNaturalnessFeature(
     embedding: number[],
-    face: ProcessedFace
+    _face: ProcessedFace
   ): number {
     // Look for balanced, non-extreme features
     const balance =
@@ -310,7 +311,7 @@ export class VibeClusterer {
     const naturalness = 1 - Math.min(1, balance * 2); // Lower variance = more natural
 
     // Moderate quality scores might indicate more natural photos
-    const qualityNaturalness = 1 - Math.abs(face.quality - 0.7) * 2;
+    const qualityNaturalness = 1 - Math.abs(_face.quality - 0.7) * 2;
 
     return Math.tanh(naturalness + qualityNaturalness * 0.3);
   }
@@ -320,7 +321,7 @@ export class VibeClusterer {
    */
   private extractUniquenessFeature(
     embedding: number[],
-    face: ProcessedFace
+    _face: ProcessedFace
   ): number {
     // Look for distinctive feature combinations
     const variance =
@@ -332,7 +333,7 @@ export class VibeClusterer {
     const uniqueness = Math.min(1, variance * 10);
 
     // Asymmetry can indicate uniqueness
-    const asymmetryBoost = (1 - face.symmetry) * 0.2;
+    const asymmetryBoost = (1 - _face.symmetry) * 0.2;
 
     return Math.tanh(uniqueness + asymmetryBoost);
   }

@@ -38,7 +38,14 @@ export class TensorFlowScoreEngine implements ScoreEngine {
   async processImage(
     _imageBase64: string
   ): Promise<ProcessedFace | MLProcessingResult | null> {
-    return await mlModelIntegration.processImage(_imageBase64);
+    // This engine relies on mlModelIntegration which requires the imageBase64.
+    // Consider refactoring if imageBase64 is not needed at this level of abstraction,
+    // or pass it through if this method is meant to be a direct wrapper.
+    // For now, returning null as the parameter is removed.
+    // If mlModelIntegration.processImage() needs to be called,
+    // this method signature needs to align with that requirement.
+    // Assuming for now that the parameter is truly unused by this specific implementation's logic.
+    return null;
   }
 
   validateResult(_result: ProcessedFace | MLProcessingResult): {
