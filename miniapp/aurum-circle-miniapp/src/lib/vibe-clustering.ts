@@ -109,13 +109,13 @@ export class VibeClusterer {
       const vibeVector = this.extractVibeFeatures(embedding, _face);
 
       // Calculate distances to vibe clusters
-      const vibeScores = this.calculateVibeAffinities(vibeVector, _face);
+      const vibeScores = this.calculateVibeAffinities(vibeVector);
 
       // Select primary and secondary vibes
-      const selectedVibes = this.selectVibes(vibeScores, _face);
+      const selectedVibes = this.selectVibes(vibeScores);
 
       // Add signature vibe if applicable
-      const signatureVibe = this.detectSignatureVibe(vibeScores, _face);
+      const signatureVibe = this.detectSignatureVibe(vibeScores);
       if (signatureVibe) {
         selectedVibes.unshift(signatureVibe);
       }
@@ -340,10 +340,7 @@ export class VibeClusterer {
   /**
    * Calculate affinities to different vibe clusters
    */
-  private calculateVibeAffinities(
-    vibeVector: number[],
-    _face: ProcessedFace
-  ): Map<string, number> {
+  private calculateVibeAffinities(vibeVector: number[]): Map<string, number> {
     const affinities = new Map<string, number>();
 
     // Define vibe cluster centers in the reduced space
@@ -373,10 +370,7 @@ export class VibeClusterer {
   /**
    * Select vibes based on affinities and face characteristics
    */
-  private selectVibes(
-    affinities: Map<string, number>,
-    _face: ProcessedFace
-  ): string[] {
+  private selectVibes(affinities: Map<string, number>): string[] {
     // Sort vibes by affinity
     const sortedVibes = Array.from(affinities.entries()).sort(
       ([, a], [, b]) => b - a
@@ -403,10 +397,7 @@ export class VibeClusterer {
   /**
    * Detect signature vibe combinations
    */
-  private detectSignatureVibe(
-    affinities: Map<string, number>,
-    _face: ProcessedFace
-  ): string | null {
+  private detectSignatureVibe(affinities: Map<string, number>): string | null {
     for (const signature of this.SIGNATURE_VIBES) {
       let matchScore = 0;
       let matchCount = 0;
