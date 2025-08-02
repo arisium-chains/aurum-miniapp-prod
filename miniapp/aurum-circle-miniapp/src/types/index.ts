@@ -87,7 +87,7 @@ export interface DiscoveryFilters {
 }
 
 // API Response types
-export interface ApiResponse<T = Record<string, unknown>> {
+export interface ApiResponse<T = Record<string, never>> {
   success: boolean;
   data?: T;
   error?: string;

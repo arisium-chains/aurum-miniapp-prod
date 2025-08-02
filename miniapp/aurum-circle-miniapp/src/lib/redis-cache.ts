@@ -13,6 +13,14 @@ const redis = new Redis(process.env.REDIS_URL || "redis://redis:6379", {
 // Cache TTL in seconds (24 hours)
 const CACHE_TTL = 24 * 60 * 60;
 
+export interface LeaderboardData {
+  userId: string;
+  score: number;
+  interpretation: string;
+  timestamp: string;
+  metadata?: Record<string, unknown>;
+}
+
 export class RedisCache {
   /**
    * Cache a user's facial score
@@ -43,7 +51,7 @@ export class RedisCache {
    */
   static async cacheLeaderboard(
     key: string,
-    data: Record<string, unknown>
+    data: LeaderboardData
   ): Promise<void> {
     try {
       await redis.setex(`leaderboard:${key}`, CACHE_TTL, JSON.stringify(data));
@@ -55,9 +63,7 @@ export class RedisCache {
   /**
    * Get cached leaderboard data
    */
-  static async getLeaderboard(
-    key: string
-  ): Promise<Record<string, unknown> | null> {
+  static async getLeaderboard(key: string): Promise<LeaderboardData | null> {
     try {
       const data = await redis.get(`leaderboard:${key}`);
       return data ? JSON.parse(data) : null;

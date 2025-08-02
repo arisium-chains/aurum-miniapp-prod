@@ -72,7 +72,7 @@ export class LLMScoreEngine implements ScoreEngine {
     throw new Error("LLM/VLM scoring not yet implemented");
   }
 
-  validateResult(result: ProcessedFace | MLProcessingResult): {
+  validateResult(_result: ProcessedFace | MLProcessingResult): {
     isValid: boolean;
     reason?: string;
   } {
