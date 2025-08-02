@@ -3,59 +3,65 @@
  * Limits requests to API endpoints to prevent abuse
  */
 
-import { NextRequest, NextResponse } from 'next/server';
-import { RedisCache } from '@/lib/redis-cache';
+import { NextRequest, NextResponse } from "next/server";
+import Redis from "ioredis";
+
+// Initialize Redis client
+const redis = new Redis(process.env.REDIS_URL || "redis://redis:6379", {
+  maxRetriesPerRequest: null,
+});
 
 // Rate limit configuration
 const RATE_LIMITS = {
-  '/api/attractiveness/score': {
+  "/api/attractiveness/score": {
     limit: 10, // 10 requests
-    window: 60 // per 60 seconds (1 minute)
-  }
+    window: 60, // per 60 seconds (1 minute)
+  },
 };
 
 export async function rateLimitMiddleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
-  
+
   // Check if this path has rate limiting
   const rateLimitConfig = RATE_LIMITS[pathname as keyof typeof RATE_LIMITS];
   if (!rateLimitConfig) {
     return null; // No rate limiting for this path
   }
-  
+
   // Get IP address
-  const ip = request.headers.get('x-forwarded-for') || 
-             request.headers.get('x-real-ip') || 
-             request.ip || 
-             'unknown';
-  
+  const ip =
+    request.headers.get("x-forwarded-for") ||
+    request.headers.get("x-real-ip") ||
+    (request as unknown as { ip?: string }).ip ||
+    "unknown";
+
   // Create key for this IP and path
   const key = `rate_limit:${pathname}:${ip}`;
-  
+
   try {
-    // Get current count from Redis
-    const countStr = await RedisCache.getLeaderboard(key);
-    let count = countStr ? parseInt(countStr, 10) : 0;
-    
-    // If this is the first request in the window, reset the counter
-    if (count === 0) {
-      // Set the key with expiration
-      await RedisCache.cacheLeaderboard(key, '1');
-    } else if (count >= rateLimitConfig.limit) {
-      // Rate limit exceeded
-      return NextResponse.json({
-        success: false,
-        message: `Rate limit exceeded. Maximum ${rateLimitConfig.limit} requests per ${rateLimitConfig.window} seconds.`,
-        error_type: 'rate_limit_exceeded'
-      }, { status: 429 });
-    } else {
-      // Increment the counter
-      await RedisCache.cacheLeaderboard(key, (count + 1).toString());
+    // Increment the counter
+    const count = await redis.incr(key);
+
+    // Set expiration if this is the first request
+    if (count === 1) {
+      await redis.expire(key, rateLimitConfig.window);
     }
-    
+
+    // Check if rate limit exceeded
+    if (count > rateLimitConfig.limit) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `Rate limit exceeded. Maximum ${rateLimitConfig.limit} requests per ${rateLimitConfig.window} seconds.`,
+          error_type: "rate_limit_exceeded",
+        },
+        { status: 429 }
+      );
+    }
+
     return null; // Continue with the request
   } catch (error) {
-    console.error('Rate limiting error:', error);
+    console.error("Rate limiting error:", error);
     // In case of Redis error, allow the request to proceed
     return null;
   }

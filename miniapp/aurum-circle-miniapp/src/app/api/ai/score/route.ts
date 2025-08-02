@@ -219,7 +219,7 @@ function generateMockScore(imageBase64: string, scenario?: string): ScoreResult 
   }
   
   // Different scoring profiles based on image characteristics and scenario
-  let scoreProfile = getScoreProfile(analysis, scenario)
+  const scoreProfile = getScoreProfile(analysis, scenario)
   
   // Generate base scores with golden ratio integration
   const attractiveness = generateAttractivenessScore(analysis, scoreProfile.attractiveness)

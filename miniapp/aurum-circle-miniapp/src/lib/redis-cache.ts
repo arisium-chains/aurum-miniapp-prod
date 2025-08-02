@@ -4,7 +4,6 @@
  */
 
 import Redis from "ioredis";
-import { UserEmbedding } from "@/lib/vector-store";
 
 // Initialize Redis client
 const redis = new Redis(process.env.REDIS_URL || "redis://redis:6379", {
@@ -42,7 +41,7 @@ export class RedisCache {
   /**
    * Cache leaderboard data
    */
-  static async cacheLeaderboard(key: string, data: any): Promise<void> {
+  static async cacheLeaderboard(key: string, data: unknown): Promise<void> {
     try {
       await redis.setex(`leaderboard:${key}`, CACHE_TTL, JSON.stringify(data));
     } catch (error) {
@@ -53,7 +52,7 @@ export class RedisCache {
   /**
    * Get cached leaderboard data
    */
-  static async getLeaderboard(key: string): Promise<any | null> {
+  static async getLeaderboard(key: string): Promise<unknown | null> {
     try {
       const data = await redis.get(`leaderboard:${key}`);
       return data ? JSON.parse(data) : null;
