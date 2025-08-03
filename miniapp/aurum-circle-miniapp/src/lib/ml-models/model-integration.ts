@@ -4,10 +4,14 @@
  */
 
 import { realFaceDetector, RealFaceDetection } from "./face-detection";
+<<<<<<< HEAD
 import {
   realFaceEmbeddingExtractor,
   RealFaceEmbeddingExtractor, // eslint-disable-line @typescript-eslint/no-unused-vars
 } from "./face-embeddings";
+=======
+import { realFaceEmbeddingExtractor } from "./face-embeddings";
+>>>>>>> 7c45ced (Fix ESLint warnings causing Docker build failure)
 
 export interface MLProcessingResult {
   embedding: Float32Array;
@@ -53,8 +57,13 @@ export class MLModelIntegration {
 
       this.isInitialized = true;
       console.log("All ML models initialized successfully");
+<<<<<<< HEAD
     } catch (error) {
       console.error("ML model initialization failed:", error);
+=======
+    } catch {
+      console.error("ML model initialization failed");
+>>>>>>> 7c45ced (Fix ESLint warnings causing Docker build failure)
       throw new Error("Failed to initialize ML models");
     }
   }
@@ -110,9 +119,15 @@ export class MLModelIntegration {
         faceId: embeddingResult.faceId,
         detectionData: bestFace,
       };
+<<<<<<< HEAD
     } catch (error) {
       console.error("ML processing failed:", error);
       throw error;
+=======
+    } catch {
+      console.error("ML processing failed");
+      throw new Error("ML processing failed");
+>>>>>>> 7c45ced (Fix ESLint warnings causing Docker build failure)
     }
   }
 
@@ -188,7 +203,22 @@ export class MLModelIntegration {
     embedding1: Float32Array,
     embedding2: Float32Array
   ): number {
+<<<<<<< HEAD
     return RealFaceEmbeddingExtractor.cosineSimilarity(embedding1, embedding2);
+=======
+    // Calculate cosine similarity manually
+    let dotProduct = 0;
+    let norm1 = 0;
+    let norm2 = 0;
+
+    for (let i = 0; i < embedding1.length; i++) {
+      dotProduct += embedding1[i] * embedding2[i];
+      norm1 += embedding1[i] * embedding1[i];
+      norm2 += embedding2[i] * embedding2[i];
+    }
+
+    return dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2));
+>>>>>>> 7c45ced (Fix ESLint warnings causing Docker build failure)
   }
 
   /**
@@ -208,8 +238,13 @@ export class MLModelIntegration {
       const batchPromises = batch.map(async (imageBase64) => {
         try {
           return await this.processImage(imageBase64);
+<<<<<<< HEAD
         } catch (error) {
           console.error("Batch processing failed for image:", error);
+=======
+        } catch {
+          console.error("Batch processing failed for image");
+>>>>>>> 7c45ced (Fix ESLint warnings causing Docker build failure)
           return null;
         }
       });
@@ -250,7 +285,11 @@ export class MLModelIntegration {
       const img = new Image();
 
       img.onload = () => resolve(img);
+<<<<<<< HEAD
       img.onerror = (_error) => reject(new Error("Failed to load image"));
+=======
+      img.onerror = () => reject(new Error("Failed to load image"));
+>>>>>>> 7c45ced (Fix ESLint warnings causing Docker build failure)
 
       // Add data URL prefix if not present
       const dataUrl = base64.startsWith("data:")
@@ -289,8 +328,13 @@ export class MLModelIntegration {
       if (!this.isInitialized) {
         try {
           await this.initialize();
+<<<<<<< HEAD
         } catch (error) {
           console.warn("ML models not available:", error);
+=======
+        } catch {
+          console.warn("ML models not available");
+>>>>>>> 7c45ced (Fix ESLint warnings causing Docker build failure)
           return {
             status: "unhealthy",
             details: {
@@ -326,7 +370,11 @@ export class MLModelIntegration {
       }
 
       return { status, details, latency };
+<<<<<<< HEAD
     } catch (_error) {
+=======
+    } catch {
+>>>>>>> 7c45ced (Fix ESLint warnings causing Docker build failure)
       console.error("Health check failed");
       return {
         status: "unhealthy",

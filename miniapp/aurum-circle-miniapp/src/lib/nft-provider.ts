@@ -7,10 +7,7 @@ export interface NFTProvider {
   /**
    * Verify if a user owns a qualifying NFT
    */
-  verifyNFTOwnership(
-    address: string,
-    chainId: number
-  ): Promise<{
+  verifyNFTOwnership(): Promise<{
     hasNFT: boolean;
     tier?: "none" | "basic" | "rare" | "elite" | "legendary";
     tokenId?: string;
@@ -36,10 +33,7 @@ export class EthereumNFTProvider implements NFTProvider {
     "0x...", // Replace with actual contract addresses
   ];
 
-  async verifyNFTOwnership(
-    _address: string,
-    _chainId: number
-  ): Promise<{
+  async verifyNFTOwnership(): Promise<{
     hasNFT: boolean;
     tier?: "none" | "basic" | "rare" | "elite" | "legendary";
     tokenId?: string;
@@ -73,10 +67,7 @@ export class PolygonNFTProvider implements NFTProvider {
     "0x...", // Replace with actual contract addresses
   ];
 
-  async verifyNFTOwnership(
-    _address: string,
-    _chainId: number
-  ): Promise<{
+  async verifyNFTOwnership(): Promise<{
     hasNFT: boolean;
     tier?: "none" | "basic" | "rare" | "elite" | "legendary";
     tokenId?: string;
@@ -110,10 +101,7 @@ export class BNBChainNFTProvider implements NFTProvider {
     "0x...", // Replace with actual contract addresses
   ];
 
-  async verifyNFTOwnership(
-    _address: string,
-    _chainId: number
-  ): Promise<{
+  async verifyNFTOwnership(): Promise<{
     hasNFT: boolean;
     tier?: "none" | "basic" | "rare" | "elite" | "legendary";
     tokenId?: string;
@@ -147,10 +135,7 @@ export class ZoraNFTProvider implements NFTProvider {
     "0x...", // Replace with actual contract addresses
   ];
 
-  async verifyNFTOwnership(
-    _address: string,
-    _chainId: number
-  ): Promise<{
+  async verifyNFTOwnership(): Promise<{
     hasNFT: boolean;
     tier?: "none" | "basic" | "rare" | "elite" | "legendary";
     tokenId?: string;

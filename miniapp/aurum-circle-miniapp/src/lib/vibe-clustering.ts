@@ -124,7 +124,7 @@ export class VibeClusterer {
       const uniqueVibes = [...new Set(selectedVibes)];
 
       return uniqueVibes.slice(0, 3); // Maximum 3 vibes
-    } catch (_error) {
+    } catch {
       console.error("Vibe generation failed");
       return ["Authentic"]; // Fallback vibe
     }

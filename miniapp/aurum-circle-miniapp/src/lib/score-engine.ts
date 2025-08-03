@@ -14,13 +14,13 @@ export interface ScoreEngine {
    * Process an image and extract face embedding
    */
   processImage(
-    imageBase64: string
+    imageBase64?: string
   ): Promise<ProcessedFace | MLProcessingResult | null>;
 
   /**
    * Validate the processing result
    */
-  validateResult(result: ProcessedFace | MLProcessingResult): {
+  validateResult(result?: ProcessedFace | MLProcessingResult): {
     isValid: boolean;
     reason?: string;
   };
@@ -36,8 +36,9 @@ export interface ScoreEngine {
  */
 export class TensorFlowScoreEngine implements ScoreEngine {
   async processImage(
-    _imageBase64: string
+    imageBase64: string
   ): Promise<ProcessedFace | MLProcessingResult | null> {
+<<<<<<< HEAD
     // This engine relies on mlModelIntegration which requires the imageBase64.
     // Consider refactoring if imageBase64 is not needed at this level of abstraction,
     // or pass it through if this method is meant to be a direct wrapper.
@@ -46,9 +47,12 @@ export class TensorFlowScoreEngine implements ScoreEngine {
     // this method signature needs to align with that requirement.
     // Assuming for now that the parameter is truly unused by this specific implementation's logic.
     return null;
+=======
+    return await mlModelIntegration.processImage(imageBase64);
+>>>>>>> 7c45ced (Fix ESLint warnings causing Docker build failure)
   }
 
-  validateResult(_result: ProcessedFace | MLProcessingResult): {
+  validateResult(): {
     isValid: boolean;
     reason?: string;
   } {
@@ -72,14 +76,12 @@ export class TensorFlowScoreEngine implements ScoreEngine {
  * Future LLM/VLM Implementation Placeholder
  */
 export class LLMScoreEngine implements ScoreEngine {
-  async processImage(
-    _imageBase64: string
-  ): Promise<ProcessedFace | MLProcessingResult | null> {
+  async processImage(): Promise<ProcessedFace | MLProcessingResult | null> {
     // Placeholder for future LLM/VLM implementation
     throw new Error("LLM/VLM scoring not yet implemented");
   }
 
-  validateResult(_result: ProcessedFace | MLProcessingResult): {
+  validateResult(): {
     isValid: boolean;
     reason?: string;
   } {
