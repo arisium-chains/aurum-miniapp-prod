@@ -1,0 +1,90 @@
+# Multi-stage Docker build for Aurum Circle Node.js Scoring Service
+# Optimized for production deployment with Express.js and ML capabilities
+
+# Stage 1: Dependencies
+FROM node:20-alpine AS deps
+WORKDIR /app
+
+# Install system dependencies needed for build and runtime
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    make \
+    g++ \
+    bash \
+    curl \
+    wget \
+    && rm -rf /var/cache/apk/*
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies including dev dependencies for build
+RUN npm ci --include=dev --legacy-peer-deps
+
+# Stage 2: Builder
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+# Copy dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/package*.json ./
+
+# Copy application source code
+COPY . .
+
+# Set environment variables for build
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Build the TypeScript application
+RUN npm run build
+
+# Stage 3: Production Runner
+FROM node:20-alpine AS runner
+WORKDIR /app
+
+# Set environment variables for production
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+# Create system user for security
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Install runtime dependencies
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    curl \
+    wget \
+    && rm -rf /var/cache/apk/*
+
+# Copy built application from builder stage
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/package*.json ./
+
+# Install production dependencies only
+RUN npm ci --only=production --ignore-scripts --legacy-peer-deps
+
+# Create directories for persistent data
+RUN mkdir -p /app/data/logs /app/data/models && chown -R nextjs:nodejs /app/data
+
+# Set execute permissions for scripts
+RUN chmod +x scripts/*.sh
+
+# Switch to non-root user
+USER nextjs
+
+# Health check for container monitoring
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
+
+# Expose port
+EXPOSE 3000
+
+# Start the application
+CMD ["node", ".next/standalone/server.js"]

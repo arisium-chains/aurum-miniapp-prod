@@ -1,0 +1,65 @@
+# Deploy to EC2 instance
+ec2-deploy:
+	@echo "🚀 Deploying to EC2 instance..."
+	
+	# Clone repository (if not already cloned)
+	@if [ ! -f "package.json" ]; then echo "❌ Please run this command from the project root directory"; exit 1; fi
+	
+	# Install dependencies
+	npm install
+	
+	# Setup ML models (create placeholders)
+	mkdir -p public/models/arcface
+	mkdir -p public/models/face_detection
+	touch public/models/arcface/1k3d68.onnx
+	touch public/models/arcface/2d106det.onnx
+	touch public/models/arcface/buffalo_l.zip
+	touch public/models/arcface/det_10g.onnx
+	touch public/models/arcface/genderage.onnx
+	touch public/models/arcface/w600k_r50.onnx
+	touch public/models/face_detection/model.tflite
+	
+	# Setup environment
+	@if [ ! -f ".env.local" ]; then touch .env.local; fi
+	
+	# Build application
+	npm run build
+	
+	# Start with Docker Compose
+	docker-compose up -d
+	
+	# Setup Nginx reverse proxy using Docker
+	# Create Nginx config directory
+	mkdir -p nginx/conf
+	# Create Nginx config file
+	echo "server {
+    listen 80;
+    server_name your-domain.com;  # Replace with your domain or EC2 public IP
+
+    location / {
+        proxy_pass http://app:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_cache_bypass \$http_upgrade;
+    }
+}" > nginx/conf/default.conf
+	
+	# Start Nginx container
+	sudo docker run -d \
+	  --name aurum-nginx \
+	  -p 80:80 \
+	  -v $(pwd)/nginx/conf:/etc/nginx/conf.d \
+	  --add-host=host.docker.internal:host-gateway \
+	  nginx:alpine
+	
+	echo "✅ Deployment to EC2 complete"
+	echo "⚠️  Remember to:"
+	echo "   1. Update Nginx configuration with your domain or IP"
+	echo "   2. Configure your .env.local with actual values"
+	echo "   3. Replace placeholder ML models with real ones"
+	echo "   4. Set up SSL certificate with Let's Encrypt if needed"

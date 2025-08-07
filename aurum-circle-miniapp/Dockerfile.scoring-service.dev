@@ -1,0 +1,36 @@
+# Development Dockerfile for Aurum Circle Node.js Scoring Service
+# Optimized for local development with hot reload
+
+FROM node:20-alpine
+
+# Install system dependencies needed for development
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    make \
+    g++ \
+    bash \
+    curl \
+    wget \
+    && rm -rf /var/cache/apk/*
+
+# Set the working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies including dev dependencies
+RUN npm ci
+
+# Copy application source code
+COPY . .
+
+# Set execute permissions for scripts
+RUN chmod +x scripts/*.sh
+
+# Expose port
+EXPOSE 3000
+
+# Start the application in development mode
+CMD ["npm", "run", "dev"]

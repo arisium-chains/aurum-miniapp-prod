@@ -1,0 +1,45 @@
+# Development Dockerfile for Aurum Circle Next.js Frontend
+# Optimized for local development with hot reload
+
+FROM node:20-alpine
+
+# Install system dependencies needed for development
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    make \
+    g++ \
+    bash \
+    curl \
+    wget \
+    && rm -rf /var/cache/apk/*
+
+# Set the working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies including dev dependencies
+RUN npm ci --legacy-peer-deps
+
+# Copy application source code
+COPY . .
+
+# Set execute permissions for scripts
+RUN chmod +x scripts/*.sh
+
+# Download ML models during build
+RUN echo "Starting ML model download..." && \
+    npm run download-models || \
+    (echo "❌ Model download failed, but continuing with development setup..." && \
+     mkdir -p public/models/arcface public/models/face_detection && \
+     touch public/models/arcface/buffalo_l.onnx && \
+     touch public/models/face_detection/model.tflite && \
+     echo '{"face_detection":{"model_path":"/models/face_detection/model.tflite","input_size":[192,192],"confidence_threshold":0.7,"backend":"webgl"},"face_embedding":{"model_path":"/models/arcface/buffalo_l.onnx","input_size":[112,112],"output_size":512,"backend":"webgl"},"version":"1.0.0","last_updated":"'"$(date -u +%Y-%m-%dT%H:%M:%SZ)"'"}' > public/models/model_config.json)
+
+# Expose port
+EXPOSE 3000
+
+# Start the application in development mode
+CMD ["npm", "run", "dev"]

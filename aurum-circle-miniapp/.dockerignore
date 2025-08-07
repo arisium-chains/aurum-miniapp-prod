@@ -1,0 +1,15 @@
+node_modules
+.next
+out
+.git
+.env.local
+.env.development
+README.md
+docs
+*.md
+.gitignore
+Dockerfile
+.dockerignore
+justfile
+.eslintrc.json
+.prettierrc
