@@ -3,11 +3,11 @@ FROM rust:1.70-slim as builder
 WORKDIR /app
 
 # Copy face-embedding service files
-COPY face-embedding/Cargo.toml ./
+COPY face-embedding/Cargo.toml face-embedding/Cargo.lock ./
 COPY face-embedding/src/ ./src/
 
 # Build the application
-RUN cargo build --release
+RUN cargo build --release --locked
 
 # Create runtime image
 FROM rust:1.70-slim

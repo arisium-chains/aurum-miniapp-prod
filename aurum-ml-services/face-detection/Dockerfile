@@ -3,11 +3,11 @@ FROM rust:1.70-slim as builder
 WORKDIR /app
 
 # Copy face-detection service files
-COPY face-detection/Cargo.toml ./
+COPY face-detection/Cargo.toml face-detection/Cargo.lock ./
 COPY face-detection/src/ ./src/
 
 # Build the application
-RUN cargo build --release
+RUN cargo build --release --locked
 
 # Create runtime image
 FROM rust:1.70-slim
