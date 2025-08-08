@@ -46,18 +46,8 @@ const nextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value: (() => {
-              const connectSrc = [
-                "'self'",
-                API_BASE_URL,
-                "https://*.alchemy.com",
-                "https://*.worldcoin.org",
-                "https://*.walletconnect.com",
-              ]
-                .filter(Boolean)
-                .join(" ");
-              return `default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.worldcoin.org https://*.vercel.app; style-src 'self' 'unsafe-inline' https://*.vercel.app; img-src 'self' data: https:; connect-src ${connectSrc}; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none';`;
-            })(), // Adjust as per your actual needs
+            value:
+              "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.worldcoin.org https://*.vercel.app; style-src 'self' 'unsafe-inline' https://*.vercel.app; img-src 'self' data: https:; connect-src 'self' https://*.alchemy.com https://*.worldcoin.org https://*.walletconnect.com; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none';", // Adjust as per your actual needs
           },
           {
             key: "Permissions-Policy",

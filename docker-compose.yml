@@ -19,8 +19,6 @@ services:
     restart: unless-stopped
     networks:
       - aurum-network
-
-
   # Main Next.js application
   app:
     build:
