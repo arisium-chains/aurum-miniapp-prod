@@ -139,7 +139,7 @@ async function checkMutualMatch(
 /**
  * Get mutual matches for a user
  */
-export async function findMutualMatches(userId: string): Promise<any[]> {
+async function findMutualMatches(userId: string): Promise<any[]> {
   try {
     // This would typically query the database for mutual matches
     // For now, return empty array as placeholder
@@ -153,7 +153,7 @@ export async function findMutualMatches(userId: string): Promise<any[]> {
 /**
  * Accept or reject a signal
  */
-export async function updateSignalStatus(
+async function updateSignalStatus(
   signalId: string,
   status: "accepted" | "rejected",
   userId: string

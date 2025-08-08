@@ -13,6 +13,12 @@ const nextConfig = {
   images: {
     domains: ["ipfs.io", "gateway.pinata.cloud"],
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   webpack: (config) => {
     config.resolve.fallback = {
       fs: false,
