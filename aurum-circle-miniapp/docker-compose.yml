@@ -184,7 +184,7 @@ services:
   # Rust ML Services
   face-detection-service:
     build:
-      context: /Users/poomcryptoman/Arisium/aurum-circle-new/aurum-ml-services
+      context: ../aurum-ml-services
       dockerfile: face-detection/Dockerfile
     ports:
       - "8001:8001"
@@ -208,7 +208,7 @@ services:
 
   face-embedding-service:
     build:
-      context: /Users/poomcryptoman/Arisium/aurum-circle-new/aurum-ml-services
+      context: ../aurum-ml-services
       dockerfile: face-embedding/Dockerfile
     ports:
       - "8002:8002"
