@@ -11,7 +11,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies (including dev dependencies for build)
-RUN npm ci --only=production --ignore-scripts
+RUN npm ci
 
 # Copy the rest of the application code
 COPY . .
@@ -21,6 +21,7 @@ RUN npm run download-models
 
 # Build the Next.js application with standalone output
 RUN npm run build
+RUN npm prune --omit=dev
 
 # Production stage
 FROM node:20-alpine AS runner
