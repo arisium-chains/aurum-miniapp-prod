@@ -11,18 +11,13 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies (including dev dependencies for build)
-RUN npm ci --only=production # Use ci for faster, more deterministic installs in CI/CD
+RUN npm ci --only=production --ignore-scripts
 
 # Copy the rest of the application code
 COPY . .
 
-# Set execute permissions for scripts if they exist and are needed
-# RUN chmod +x scripts/*.sh
-
-# Run the model download script if it's part of the build process
-# Ensure this script is idempotent and handles cases where models are already downloaded
-RUN if [ -f "scripts/download-models.sh" ]; then ./scripts/download-models.sh; fi \
-    && if [ -f "scripts/decompress-models.sh" ]; then ./scripts/decompress-models.sh; fi
+# Download required models
+RUN npm run download-models
 
 # Build the Next.js application with standalone output
 RUN npm run build
