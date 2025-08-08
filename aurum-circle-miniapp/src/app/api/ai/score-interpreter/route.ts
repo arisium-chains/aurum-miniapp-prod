@@ -70,9 +70,11 @@ function detectAIGeneration(imageBase64: string, rawScores: RawScoreResult): {
   
   // Statistical impossibility detection
   if (rawScores.golden_ratio_analysis) {
-    const measurements = Object.values(rawScores.golden_ratio_analysis.measurements)
-    const perfectCount = measurements.filter(m => m > 95).length
-    const veryGoodCount = measurements.filter(m => m > 85).length
+    const measurements = Object.values(
+      rawScores.golden_ratio_analysis.measurements
+    ) as number[]
+    const perfectCount = measurements.filter((m: number) => m > 95).length
+    const veryGoodCount = measurements.filter((m: number) => m > 85).length
     
     // Too many perfect measurements
     if (perfectCount >= 6) {

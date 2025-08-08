@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     
     // Store in Redis with a key that includes timestamp for uniqueness
     const key = `ai_score_log:${body.userId}:${Date.now()}`
-    await RedisCache.cacheLeaderboard(key, JSON.stringify(logEntry))
+    await RedisCache.cacheLeaderboard(key, logEntry)
     
     return NextResponse.json({
       success: true,
