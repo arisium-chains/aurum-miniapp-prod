@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+
 const nextConfig = {
   reactStrictMode: true,
   output: "standalone", // For Docker deployment, creates a standalone output
@@ -11,6 +13,7 @@ const nextConfig = {
     ALCHEMY_API_KEY: process.env.ALCHEMY_API_KEY,
     JWT_SECRET: process.env.JWT_SECRET,
     NFT_CONTRACT_ADDRESS: process.env.NFT_CONTRACT_ADDRESS,
+    NEXT_PUBLIC_API_BASE_URL: API_BASE_URL,
     // Add other environment variables as needed
   },
   images: {

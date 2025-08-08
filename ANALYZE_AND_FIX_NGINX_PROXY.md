@@ -31,7 +31,7 @@ The goal is for Nginx (listening on port 80) to be the only point of access for 
   - **`listen` Directives**: Ensure Nginx listens on `80` (and potentially `443` if SSL is configured, though not indicated yet).
   - **`server_name`**: Should be appropriate (e.g., `localhost` or a domain).
   - **`location` Blocks**:
-    - Check if all necessary paths are covered (e.g., `/`, `/api/ml/`, `/api/face-detection/`, etc.).
+    - Check if all necessary paths are covered (e.g., `/`, `/ml-api/`, `/api/face-detection/`, etc.).
     - Verify `proxy_pass` directives correctly point to the defined upstreams (e.g., `http://app;`, `http://ml-api;`).
     - Ensure proxy headers (`Host`, `X-Real-IP`, `X-Forwarded-For`, `X-Forwarded-Proto`, `Upgrade`, `Connection`) are correctly set.
   - **Default Proxy Behavior**: Ensure there's a default `location /` or `location / { ... }` to catch requests not matching other specific paths.
@@ -100,7 +100,7 @@ The goal is for Nginx (listening on port 80) to be the only point of access for 
                 # ... other proxy headers
             }
 
-            location /api/ml/ {
+            location /ml-api/ {
                 proxy_pass http://ml_api; # Use upstream name
                 # ... other proxy headers
             }
@@ -118,7 +118,7 @@ The goal is for Nginx (listening on port 80) to be the only point of access for 
     - Test access:
       - `http://<your-server-ip>:80` should work and serve the Next.js app.
       - `http://<your-server-ip>:3000` should **not** work (or should be blocked by firewall/Nginx if it somehow maps).
-      - API calls via Nginx (e.g., `http://<your-server-ip>:80/api/ml/...`) should work.
+      - API calls via Nginx (e.g., `http://<your-server-ip>:80/ml-api/...`) should work.
 5.  **Commit and Push Changes**:
     - Once verified, commit all configuration changes.
 
