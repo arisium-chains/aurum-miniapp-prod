@@ -3,10 +3,10 @@ import prisma from '@/lib/prisma'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { code: string } }
+  { params }: { params: Promise<{ code: string }> }
 ) {
   try {
-    const { code } = params
+    const { code } = await params
 
     if (!code) {
       return NextResponse.json({ success: false, message: 'Invite code is required' }, { status: 400 })
