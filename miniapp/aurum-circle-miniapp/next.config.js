@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+
 const nextConfig = {
   reactStrictMode: true,
   output: "standalone", // For Docker deployment, creates a standalone output
@@ -11,8 +13,7 @@ const nextConfig = {
     ALCHEMY_API_KEY: process.env.ALCHEMY_API_KEY,
     JWT_SECRET: process.env.JWT_SECRET,
     NFT_CONTRACT_ADDRESS: process.env.NFT_CONTRACT_ADDRESS,
-    NEXT_PUBLIC_API_GATEWAY_URL:
-      process.env.NEXT_PUBLIC_API_GATEWAY_URL || "http://localhost:8081/api",
+    NEXT_PUBLIC_API_BASE_URL: API_BASE_URL,
     // Add other environment variables as needed
   },
   images: {
@@ -45,8 +46,18 @@ const nextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value:
-              "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.worldcoin.org https://*.vercel.app; style-src 'self' 'unsafe-inline' https://*.vercel.app; img-src 'self' data: https:; connect-src 'self' http://localhost:8081 https://*.alchemy.com https://*.worldcoin.org https://*.walletconnect.com; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none';", // Adjust as per your actual needs
+            value: (() => {
+              const connectSrc = [
+                "'self'",
+                API_BASE_URL,
+                "https://*.alchemy.com",
+                "https://*.worldcoin.org",
+                "https://*.walletconnect.com",
+              ]
+                .filter(Boolean)
+                .join(" ");
+              return `default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.worldcoin.org https://*.vercel.app; style-src 'self' 'unsafe-inline' https://*.vercel.app; img-src 'self' data: https:; connect-src ${connectSrc}; font-src 'self' data:; object-src 'none'; base-uri 'self'; frame-ancestors 'none';`;
+            })(), // Adjust as per your actual needs
           },
           {
             key: "Permissions-Policy",
