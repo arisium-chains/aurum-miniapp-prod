@@ -6,73 +6,9 @@ import { Button } from "@/components/ui/button"
 import { SwipeStack } from "@/components/discovery/SwipeStack"
 import { useMiniKit } from "@/components/providers/minikit-provider"
 
-// Mock profiles for demonstration
-const MOCK_PROFILES = [
-  {
-    id: "1",
-    name: "Aria",
-    age: 21,
-    university: "cu",
-    photos: ["/placeholder-profile.svg"],
-    bio: "Third-year Architecture student passionate about sustainable design and late-night coffee. Love exploring hidden cafes around Bangkok and sketching urban landscapes. Looking for someone who appreciates both deep conversations and spontaneous adventures. 🏛️☕",
-    vibes: ["academic", "creative", "chill"],
-    score: 92,
-    isBlurred: true,
-    hasSignal: false
-  },
-  {
-    id: "2", 
-    name: "Luna",
-    age: 20,
-    university: "bu",
-    photos: ["/placeholder-profile.svg"],
-    bio: "Psychology major with a passion for understanding human behavior. When I'm not studying, you'll find me practicing yoga, reading philosophy, or trying new restaurants in Thonglor. Seeking genuine connections and meaningful conversations. 🧠✨",
-    vibes: ["academic", "social", "mysterious"],
-    score: 88,
-    isBlurred: false,
-    hasSignal: true
-  },
-  {
-    id: "3",
-    name: "Kai",
-    age: 22,
-    university: "tu",
-    photos: ["/placeholder-profile.svg"],
-    bio: "Business student by day, music producer by night. Love creating beats and discovering underground artists. Always up for concerts, art galleries, or late-night food adventures. Let's vibe together! 🎵🎨",
-    vibes: ["creative", "social", "entrepreneur"],
-    score: 85,
-    isBlurred: true,
-    hasSignal: false
-  },
-  {
-    id: "4",
-    name: "Sage",
-    age: 23,
-    university: "ku",
-    photos: ["/placeholder-profile.svg"],
-    bio: "Environmental Science graduate student researching sustainable agriculture. Weekends you'll find me rock climbing, camping, or volunteering at local farms. Looking for someone who shares my love for nature and making a positive impact. 🌱🧗‍♀️",
-    vibes: ["academic", "athletic", "adventurous"],
-    score: 90,
-    isBlurred: false,
-    hasSignal: false
-  },
-  {
-    id: "5",
-    name: "Nova",
-    age: 21,
-    university: "mu",
-    photos: ["/placeholder-profile.svg"],
-    bio: "Medical student with a secret love for street photography and vintage vinyl records. Balancing the intensity of med school with creative outlets. Appreciate both intellectual debates and quiet moments with good music. 📷🎶",
-    vibes: ["academic", "creative", "mysterious"],
-    score: 94,
-    isBlurred: true,
-    hasSignal: true
-  }
-]
-
 export default function DiscoverPage() {
   const [sessionData, setSessionData] = useState<any>(null)
-  const [profiles, setProfiles] = useState(MOCK_PROFILES)
+  const [profiles, setProfiles] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [showStats, setShowStats] = useState(false)
   const [swipeStats, setSwipeStats] = useState({
@@ -86,30 +22,37 @@ export default function DiscoverPage() {
   const { isInstalled } = useMiniKit()
 
   useEffect(() => {
-    const checkAuth = async () => {
+    const checkAuthAndFetchProfiles = async () => {
       try {
-        const response = await fetch('/api/auth/session')
-        if (!response.ok) {
+        const sessionResponse = await fetch('/api/auth/session')
+        if (!sessionResponse.ok) {
           router.push('/auth')
           return
         }
         
-        const data = await response.json()
-        if (!data.data.profileCompleted) {
+        const session = await sessionResponse.json()
+        if (!session.data.profileCompleted) {
           router.push('/onboarding/profile')
           return
         }
         
-        setSessionData(data.data)
+        setSessionData(session.data)
+
+        const profilesResponse = await fetch('/api/discovery/profiles')
+        if (profilesResponse.ok) {
+          const profilesData = await profilesResponse.json()
+          setProfiles(profilesData.data)
+        }
+
       } catch (error) {
-        console.error('Auth check failed:', error)
-        router.push('/auth')
+        console.error('Auth check or profile fetch failed:', error)
+        // router.push('/auth') // Optional: redirect on error
       } finally {
         setIsLoading(false)
       }
     }
 
-    checkAuth()
+    checkAuthAndFetchProfiles()
   }, [router])
 
   const handleSwipe = async (profileId: string, direction: 'left' | 'right' | 'up') => {

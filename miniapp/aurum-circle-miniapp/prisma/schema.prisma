@@ -1,0 +1,65 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id              String    @id @default(cuid())
+  worldId         String    @unique
+  walletAddress   String    @unique
+  handle          String    @unique
+  displayName     String
+  bio             String?
+  profileImage    String?
+  blurredImage    String?
+  vibe            String?
+  tags            Json?
+  nftVerified     Boolean   @default(false)
+  lastSeen        DateTime  @default(now()) @updatedAt
+  createdAt       DateTime  @default(now())
+  status          String    @default("active")
+  sentSignals     Signal[]  @relation("SentSignals")
+  receivedSignals Signal[]  @relation("ReceivedSignals")
+  matchesAsUser1  Match[]   @relation("User1Matches")
+  matchesAsUser2  Match[]   @relation("User2Matches")
+  invites         Invite[]
+}
+
+model Signal {
+  id           String   @id @default(cuid())
+  fromUserId   String
+  toUserId     String
+  type         String // "interest", "super_interest", "pass"
+  message      String?
+  sentAt       DateTime @default(now())
+  fromUser     User     @relation("SentSignals", fields: [fromUserId], references: [id])
+  toUser       User     @relation("ReceivedSignals", fields: [toUserId], references: [id])
+
+  @@unique([fromUserId, toUserId])
+}
+
+model Match {
+  id        String   @id @default(cuid())
+  user1Id   String
+  user2Id   String
+  matchedAt DateTime @default(now())
+  status    String   @default("matched")
+  user1     User     @relation("User1Matches", fields: [user1Id], references: [id])
+  user2     User     @relation("User2Matches", fields: [user2Id], references: [id])
+
+  @@unique([user1Id, user2Id])
+}
+
+model Invite {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  claimedBy   String?
+  claimedAt   DateTime?
+  createdAt   DateTime @default(now())
+}

@@ -1,56 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { jwtVerify, SignJWT } from 'jose'
 import { z } from 'zod'
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET!)
+
+const publicClient = createPublicClient({
+  chain: mainnet,
+  transport: http(process.env.ALCHEMY_URL), // Assumes ALCHEMY_URL is in .env
+})
+
+const erc721Abi = [
+  {
+    name: 'balanceOf',
+    type: 'function',
+    inputs: [{ name: 'owner', type: 'address' }],
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+] as const
 
 const nftVerifySchema = z.object({
   walletAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/, 'Invalid Ethereum address'),
   collections: z.array(z.string())
 })
 
-// Mock NFT data for demo purposes
-const MOCK_NFT_HOLDINGS: Record<string, Array<{
-  contractAddress: string
-  tokenId: string
-  name: string
-  description: string
-}>> = {
-  // Mock some addresses with NFTs for testing
-  '0x742d35cc3bf21f1bd4d5b8e9b7c1ad25c1a3c5a8': [
-    {
-      contractAddress: '0x1234567890123456789012345678901234567890',
-      tokenId: '1',
-      name: 'Bangkok University Student ID #1',
-      description: 'Official Bangkok University NFT Student ID'
-    }
-  ],
-  '0x8ba1f109551bd432803012645hac136c5d05c9a8': [
-    {
-      contractAddress: '0x2345678901234567890123456789012345678901',
-      tokenId: '42',
-      name: 'Chulalongkorn University Pass #42',
-      description: 'Chulalongkorn University Alumni NFT'
-    }
-  ]
-}
-
 const ELIGIBLE_NFTS = [
   {
     name: "Bangkok University Student ID",
-    contractAddress: "0x1234567890123456789012345678901234567890",
+    contractAddress: "0x1234567890123456789012345678901234567890", // Replace with actual address
     description: "Official Bangkok University NFT Student ID",
     requiredAmount: 1
   },
   {
     name: "Chulalongkorn University Pass",
-    contractAddress: "0x2345678901234567890123456789012345678901",
+    contractAddress: "0x2345678901234567890123456789012345678901", // Replace with actual address
     description: "Chulalongkorn University Alumni/Student NFT",
     requiredAmount: 1
   },
   {
     name: "Thammasat Gold Member",
-    contractAddress: "0x3456789012345678901234567890123456789012",
+    contractAddress: "0x3456789012345678901234567890123456789012", // Replace with actual address
     description: "Thammasat University Premium Member NFT",
     requiredAmount: 1
   }
@@ -83,18 +74,29 @@ export async function POST(request: NextRequest) {
       collections: validatedData.collections.length
     })
 
-    // TODO: Replace with real blockchain NFT verification
-    // For now, using mock data for demo
-    
-    const ownedNFTs = MOCK_NFT_HOLDINGS[validatedData.walletAddress] || []
-    console.log('📝 Found NFTs:', ownedNFTs.length)
+    // Check NFT holdings for each eligible collection
+    let hasAccess = false
+    let accessGrantedBy: typeof ELIGIBLE_NFTS[0] | undefined;
 
-    // Check if user owns any eligible NFTs
-    const eligibleNFT = ELIGIBLE_NFTS.find(eligible => 
-      ownedNFTs.some(owned => owned.contractAddress.toLowerCase() === eligible.contractAddress.toLowerCase())
-    )
+    for (const nft of ELIGIBLE_NFTS) {
+      try {
+        const balance = await publicClient.readContract({
+          address: nft.contractAddress as `0x${string}`,
+          abi: erc721Abi,
+          functionName: 'balanceOf',
+          args: [validatedData.walletAddress as `0x${string}`],
+        })
 
-    const hasAccess = !!eligibleNFT
+        if (balance >= nft.requiredAmount) {
+          hasAccess = true
+          accessGrantedBy = nft
+          break // Exit loop once access is confirmed
+        }
+      } catch (err) {
+        console.warn(`Could not check balance for ${nft.name}:`, err)
+        // Continue to the next NFT collection
+      }
+    }
     console.log('🎯 NFT Access:', hasAccess ? 'GRANTED' : 'DENIED')
 
     if (hasAccess) {
@@ -103,7 +105,7 @@ export async function POST(request: NextRequest) {
         ...payload,
         nftVerified: true,
         nftVerifiedAt: new Date().toISOString(),
-        eligibleNFT: eligibleNFT.name
+        eligibleNFT: accessGrantedBy?.name,
       })
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
@@ -115,9 +117,8 @@ export async function POST(request: NextRequest) {
         message: 'NFT verification successful',
         data: {
           success: true,
-          ownedNFTs,
-          eligibleNFT
-        }
+          eligibleNFT: accessGrantedBy,
+        },
       })
 
       responseObj.cookies.set('worldid-session', updatedToken, {
@@ -125,19 +126,14 @@ export async function POST(request: NextRequest) {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: 24 * 60 * 60, // 24 hours
-        path: '/'
+        path: '/',
       })
 
       return responseObj
     } else {
       return NextResponse.json({
-        success: true,
+        success: false,
         message: 'No eligible NFTs found',
-        data: {
-          success: false,
-          ownedNFTs,
-          eligibleNFT: null
-        }
       })
     }
 
