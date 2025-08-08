@@ -79,10 +79,10 @@ Percentile Calculation → Vibe Clustering → Score Return
 
 ### ML API Service Endpoints
 
-- `POST /api/score` - Submit image for processing
-- `GET /api/result/:jobId` - Get processing results
-- `GET /api/status` - Service status
-- `GET /api/ml-status` - ML model status
+- `POST /ml-api/api/score` - Submit image for processing
+- `GET /ml-api/api/result/:jobId` - Get processing results
+- `GET /ml-api/api/status` - Service status
+- `GET /ml-api/api/ml-status` - ML model status
 
 ## Current ML Components (Simulated)
 

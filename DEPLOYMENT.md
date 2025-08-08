@@ -11,33 +11,31 @@ This guide provides comprehensive instructions for deploying the Aurum Circle ap
    - [Docker Compose (Recommended)](#docker-compose-deployment-recommended)
    - [Manual Deployment](#manual-deployment)
 5. [Environment Configuration](#environment-configuration)
-6. [ML Model Setup](#ml-model-setup)
-7. [Deployment Validation](#deployment-validation)
-8. [Monitoring and Maintenance](#monitoring-and-maintenance)
-9. [Scaling Considerations](#scaling-considerations)
-10. [Troubleshooting](#troubleshooting)
+6. [Network Topology](#network-topology)
+7. [ML Model Setup](#ml-model-setup)
+8. [Deployment Validation](#deployment-validation)
+9. [Monitoring and Maintenance](#monitoring-and-maintenance)
+10. [Scaling Considerations](#scaling-considerations)
+11. [Troubleshooting](#troubleshooting)
 
 ## Architecture Overview
 
 The Aurum Circle application consists of several interconnected services:
 
 ```
-┌─────────────────┐    ┌──────────────────┐    ┌────────────────────┐
-│   Next.js App   │◄──►│  ML API Service  │◄──►│  Redis (Queue/Caching) │
-└─────────────────┘    └──────────────────┘    └────────────────────┘
-                              │                         │
-                              ▼                         ▼
-                   ┌──────────────────┐    ┌────────────────────┐
-                   │ ML Worker (Node) │    │   Qdrant (Vector DB) │
-                   └──────────────────┘    └────────────────────┘
-                              │
-                              ▼
-              ┌─────────────────────────────────┐
-              │ Rust ML Services                │
-              │  ├── Face Detection Service    │
-              │  └── Face Embedding Service    │
-              └─────────────────────────────────┘
+┌─────────────┐
+│    Nginx    │
+└────┬───┬────┘
+     │   │
+     │   └────────────▶ ML API Service (/ml-api/*)
+     │
+     └───────────────▶ Next.js App (/ and /api/*)
+                        │
+                        ├── Redis (Queue/Caching)
+                        └── Qdrant (Vector DB)
 ```
+
+The ML API coordinates with worker processes and optional Rust services for model inference.
 
 ## Prerequisites
 
@@ -224,14 +222,10 @@ Create `miniapp/aurum-circle-miniapp/.env.local` with the following variables:
 
 ```env
 # Redis configuration
-REDIS_URL=redis://localhost:6379
+REDIS_URL=redis://redis:6379
 
-# ML Services URLs
-FACE_DETECTION_SERVICE=http://localhost:8001
-FACE_EMBEDDING_SERVICE=http://localhost:8002
-
-# Qdrant configuration
-QDRANT_URL=http://localhost:6334
+# ML API internal URL
+ML_API_URL=http://ml-api:3000
 
 # Other configurations
 NODE_ENV=production
@@ -244,11 +238,7 @@ Create `miniapp/aurum-circle-miniapp/ml-face-score-api/.env` with the following 
 
 ```env
 # Redis configuration
-REDIS_URL=redis://localhost:6379
-
-# ML Services URLs
-FACE_DETECTION_SERVICE=http://face-detection-service:8001
-FACE_EMBEDDING_SERVICE=http://face-embedding-service:8002
+REDIS_URL=redis://redis:6379
 
 # Server configuration
 PORT=3001
@@ -257,6 +247,15 @@ NODE_ENV=production
 # Logging
 LOG_LEVEL=info
 ```
+
+## Network Topology
+
+All services run on the `aurum-network` Docker bridge. Nginx is the only container that exposes ports to the host (`80` and `443`) and forwards traffic to:
+
+- `app` (Next.js) for `/` and `/api/*` routes on port `3000`
+- `ml-api` for `/ml-api/*` routes on port `3000`
+
+Redis, Qdrant, and worker services are only accessible within this internal network.
 
 ## ML Model Setup
 

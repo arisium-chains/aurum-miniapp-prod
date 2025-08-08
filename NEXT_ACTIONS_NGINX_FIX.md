@@ -45,7 +45,7 @@ The most critical step is to address the Nginx configuration structure identifie
 - **Action**: Perform the tests outlined in **Phase 3.2** of the expanded task.
   - Test frontend access via Nginx (`http://<server-ip>:80`).
   - Attempt direct access to app and ml-api ports (`http://<server-ip>:3000`, `http://<server-ip>:3001`) - these should fail.
-  - Test API access via Nginx (`http://<server-ip>:80/api/ml/...`).
+  - Test API access via Nginx (`http://<server-ip>:80/ml-api/...`).
 - **Reasoning**: To confirm Nginx is routing correctly and is the sole entry point.
 - **Est. Time**: 1 hour
 

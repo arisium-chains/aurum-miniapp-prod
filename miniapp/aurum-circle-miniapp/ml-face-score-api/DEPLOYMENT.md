@@ -39,13 +39,13 @@ This guide explains how to deploy the ML Model API for public access.
 
 ## API Endpoints
 
-Once deployed, the following endpoints will be available:
+Once deployed, the following endpoints will be available. When accessed through the main Nginx proxy, each route is prefixed with `/ml-api`:
 
-- `POST /api/score` - Submit an image for scoring
-- `GET /api/status/:jobId` - Check job status
-- `GET /api/result/:jobId` - Get job result
-- `GET /api/ml-status` - Check ML model status
-- `GET /health` - Health check endpoint
+- `POST /ml-api/api/score` - Submit an image for scoring
+- `GET /ml-api/api/status/:jobId` - Check job status
+- `GET /ml-api/api/result/:jobId` - Get job result
+- `GET /ml-api/api/ml-status` - Check ML model status
+- `GET /ml-api/health` - Health check endpoint
 
 ## Scaling
 
