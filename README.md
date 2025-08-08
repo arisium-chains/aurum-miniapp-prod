@@ -12,6 +12,15 @@ This deployment includes:
 - Qdrant vector database
 - Nginx reverse proxy (running in Docker)
 
+## Architecture
+
+Nginx acts as the single entry point for the deployment:
+
+- Requests to `/` and `/api/*` are forwarded to the Next.js application which handles UI and API routes internally.
+- Requests to `/ml-api/*` are proxied to the ML Face Scoring API service.
+
+Both services run on the same Docker network and communicate directly without an API gateway.
+
 ## Prerequisites
 
 - Docker and Docker Compose installed
@@ -40,7 +49,7 @@ This deployment includes:
 
 4. The application will be available at:
    - Main app: http://localhost
-   - ML API: http://localhost/api/ml/
+   - ML API: http://localhost/ml-api/
    - Direct app access: http://localhost:3000
    - Direct ML API access: http://localhost:3001
 
@@ -50,8 +59,8 @@ This deployment includes:
 
 Before deploying, update the environment variables in the service directories:
 
-- `miniapp/aurum-circle-miniapp/.env.local`
-- `miniapp/ml-face-score-api/.env.local`
+- `miniapp/aurum-circle-miniapp/.env.local` – set `ML_API_URL` to the internal ML API address (e.g., `http://ml-api:3000` or `http://localhost/ml-api`).
+- `miniapp/ml-face-score-api/.env.local` – configure service settings such as `REDIS_URL`.
 
 ### Nginx Configuration
 
@@ -76,7 +85,7 @@ For production deployment with HTTPS, add your SSL certificates to `nginx/certs/
 
 ## Networks
 
-All services are connected through the `aurum-network` bridge network.
+All services share the `aurum-network` bridge network. Nginx is the only exposed container and proxies traffic to the Next.js app and the ML API service.
 
 ## Troubleshooting
 

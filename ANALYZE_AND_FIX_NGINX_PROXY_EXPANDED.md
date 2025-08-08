@@ -41,7 +41,7 @@ The goal is for Nginx (listening on port 80) to be the only point of access for 
   - **`listen` Directives**: Ensure Nginx listens only on `80` (and `443` if SSL is configured).
   - **`server_name`**: Should be appropriate (e.g., `localhost` or a domain).
   - **`location` Blocks**:
-    - **Comprehensive Coverage**: Meticulously check if all necessary application paths are covered (e.g., `/`, `/api/ml/`, `/api/face-detection/`, `/api/face-embedding/`, static file paths, API health checks).
+    - **Comprehensive Coverage**: Meticulously check if all necessary application paths are covered (e.g., `/`, `/ml-api/`, `/api/face-detection/`, `/api/face-embedding/`, static file paths, API health checks).
     - **`proxy_pass` Directives**: Verify `proxy_pass` directives correctly point to the defined upstreams (e.g., `http://app;`, `http://ml_api;`). Ensure trailing slashes are handled correctly.
     - **Proxy Headers**: Ensure all necessary proxy headers (`Host`, `X-Real-IP`, `X-Forwarded-For`, `X-Forwarded-Proto`, `Upgrade`, `Connection`, `X-Forwarded-Host`) are correctly set.
   - **Default Proxy Behavior**: Ensure there's a default `location /` or `location / { ... }` to catch requests not matching other specific paths.
@@ -162,7 +162,7 @@ Based on the analysis, refactor the Nginx setup to a more standard and maintaina
       }
 
       # ML API proxy
-      location /api/ml/ {
+      location /ml-api/ {
           proxy_pass http://ml_api;
           proxy_http_version 1.1;
           proxy_set_header Upgrade $http_upgrade;
@@ -239,7 +239,7 @@ Based on the analysis, refactor the Nginx setup to a more standard and maintaina
   - `curl -I http://<your-server-ip>:3000` -> Should return Connection Refused or similar.
   - `curl -I http://<your-server-ip>:3001` -> Should return Connection Refused or similar.
 - **API Access via Nginx**:
-  - `curl -I http://<your-server-ip>:80/api/ml/...` -> Should work, proxied to `ml-api`.
+  - `curl -I http://<your-server-ip>:80/ml-api/...` -> Should work, proxied to `ml-api`.
   - `curl -I http://<your-server-ip>:80/api/health` -> Should work, proxied to `app`.
 - **Nginx Logs**: `docker logs aurum-miniapp-prod-nginx-1` - Check for access patterns and errors.
 - **Application Logs**: `docker logs aurum-miniapp-prod-app-1` and `docker logs aurum-miniapp-prod-ml-api-1` - Check for any errors related to proxying, URLs, or connections.
