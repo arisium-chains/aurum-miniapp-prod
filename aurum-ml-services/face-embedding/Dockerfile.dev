@@ -6,7 +6,7 @@ WORKDIR /app
 RUN cargo install cargo-watch
 
 # Copy face-embedding source code
-COPY face-embedding/Cargo.toml ./
+COPY face-embedding/Cargo.toml face-embedding/Cargo.lock ./
 COPY face-embedding/src/ ./src/
 
 # Expose port
@@ -17,4 +17,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:8002/health || exit 1
 
 # Run in development mode with auto-reload
-CMD ["cargo", "watch", "-x", "run", "--", "--port", "8002"]
+CMD ["cargo", "watch", "-x", "run"]
