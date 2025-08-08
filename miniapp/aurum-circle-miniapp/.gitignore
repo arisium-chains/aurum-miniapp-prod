@@ -62,3 +62,5 @@ next-env.d.ts
 aurum-circle-deployment.tar.gz
 *-deployment.tar.gz
 *.tar.gz
+
+/src/generated/prisma

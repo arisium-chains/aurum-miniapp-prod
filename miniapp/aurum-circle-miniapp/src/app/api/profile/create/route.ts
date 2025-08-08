@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { jwtVerify, SignJWT } from 'jose'
 import { z } from 'zod'
+import prisma from '@/lib/prisma'
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET!)
 
@@ -43,32 +44,32 @@ export async function POST(request: NextRequest) {
       primaryVibe: validatedData.primaryVibe
     })
 
-    // TODO: Store profile in database
-    // For now, we'll just update the session token with profile completion
-
-    const profileData = {
-      id: crypto.randomUUID(),
-      worldId: payload.worldId,
-      walletAddress: payload.walletAddress,
-      name: validatedData.name,
-      university: validatedData.university,
-      year: validatedData.year || null,
-      faculty: validatedData.faculty || null,
-      primaryVibe: validatedData.primaryVibe,
-      secondaryVibes: validatedData.secondaryVibes,
-      bio: validatedData.bio || null,
-      createdAt: new Date().toISOString(),
-      isActive: true,
-      inviteCodesUsed: 0,
-      maxInviteCodes: 3
-    }
+    // Store profile in database
+    const user = await prisma.user.create({
+      data: {
+        worldId: payload.worldId as string,
+        walletAddress: payload.walletAddress as string,
+        handle: validatedData.name.toLowerCase().replace(/\s/g, '_') + '_' + crypto.randomUUID().slice(0, 4),
+        displayName: validatedData.name,
+        bio: validatedData.bio,
+        vibe: validatedData.primaryVibe,
+        tags: {
+          university: validatedData.university,
+          year: validatedData.year,
+          faculty: validatedData.faculty,
+          secondaryVibes: validatedData.secondaryVibes
+        },
+        nftVerified: false, // This will be updated later
+        status: 'active'
+      }
+    });
 
     // Update session with profile completion
     const updatedToken = await new SignJWT({
       ...payload,
       profileCompleted: true,
-      profileId: profileData.id,
-      profileCreatedAt: profileData.createdAt
+      profileId: user.id,
+      profileCreatedAt: user.createdAt
     })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()

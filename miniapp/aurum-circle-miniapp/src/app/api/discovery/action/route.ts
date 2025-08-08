@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { jwtVerify, SignJWT } from 'jose'
+import { jwtVerify } from 'jose'
 import { z } from 'zod'
+import prisma from '@/lib/prisma'
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET!)
 
@@ -39,34 +40,47 @@ export async function POST(request: NextRequest) {
       action: validatedData.action
     })
 
-    // TODO: Store swipe action in database
-    // For now, we'll just log and return success
-    const swipeRecord = {
-      id: crypto.randomUUID(),
-      userId: payload.worldId,
-      profileId: validatedData.profileId,
-      action: validatedData.action,
-      timestamp: new Date().toISOString()
+    // Store swipe action in the database
+    const swipe = await prisma.signal.create({
+      data: {
+        fromUserId: payload.profileId as string,
+        toUserId: validatedData.profileId,
+        type: validatedData.action,
+      },
+    });
+
+    let isMatch = false;
+    // Check for a mutual match if the action is 'like' or 'super_like'
+    if (validatedData.action === 'like' || validatedData.action === 'super_like') {
+      const mutualLike = await prisma.signal.findFirst({
+        where: {
+          fromUserId: validatedData.profileId,
+          toUserId: payload.profileId as string,
+          type: {
+            in: ['like', 'super_like'],
+          },
+        },
+      });
+
+      if (mutualLike) {
+        isMatch = true;
+        // Create a match record
+        await prisma.match.create({
+          data: {
+            user1Id: payload.profileId as string,
+            user2Id: validatedData.profileId,
+          },
+        });
+      }
     }
-
-    // Check for mutual match (mock logic for demo)
-    const isMatch = validatedData.action === 'like' && Math.random() > 0.7 // 30% match rate for demo
-
-    console.log('✅ Swipe action recorded:', {
-      action: validatedData.action,
-      isMatch
-    })
 
     return NextResponse.json({
       success: true,
       message: 'Swipe action recorded',
       data: {
-        swipeId: swipeRecord.id,
-        action: validatedData.action,
         isMatch,
-        timestamp: swipeRecord.timestamp
-      }
-    })
+      },
+    });
 
   } catch (error) {
     console.error('💥 Swipe action error:', error)
