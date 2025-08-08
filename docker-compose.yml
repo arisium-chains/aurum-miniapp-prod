@@ -10,38 +10,12 @@ services:
       - "80:80"
       - "443:443"
     depends_on:
-      - api-gateway
       - app
       - ml-api
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf:/etc/nginx/conf.d:ro
       - nginx_logs:/var/log/nginx
-    restart: unless-stopped
-    networks:
-      - aurum-network
-
-  # Go API Gateway
-  api-gateway:
-    build:
-      context: ./api-gateway
-      dockerfile: Dockerfile
-    ports:
-      - "8081:8081" # Internal port for Go app
-    environment:
-      - NODE_ENV=production # May not be relevant for Go, but consistent
-      - REDIS_URL=redis://redis:6379
-      - QDRANT_HOST=qdrant
-      - QDRANT_PORT=6333
-      - ML_API_URL=http://ml-api:3000 # Internal URL for ML API
-      - NEXTJS_API_URL=http://app:3000 # Internal URL for Next.js API
-    depends_on:
-      redis:
-        condition: service_healthy
-      qdrant:
-        condition: service_started
-    volumes:
-      - ./api-gateway:/app:ro # Mount source code for development, can be removed for production image
     restart: unless-stopped
     networks:
       - aurum-network
@@ -58,14 +32,11 @@ services:
       - REDIS_URL=redis://redis:6379
       - QDRANT_HOST=qdrant
       - QDRANT_PORT=6333
-      - API_GATEWAY_URL=http://api-gateway:8081 # Internal URL for API Gateway
     depends_on:
       qdrant:
         condition: service_started
       redis:
         condition: service_healthy
-      api-gateway: # Ensure API Gateway is up before Next.js tries to use it
-        condition: service_started
     volumes:
       - ./miniapp/aurum-circle-miniapp/public/models:/app/public/models
     restart: unless-stopped
@@ -84,7 +55,6 @@ services:
       - REDIS_URL=redis://redis:6379
     depends_on:
       - redis
-      - api-gateway # API Gateway might need to call this
     volumes:
       - ./miniapp/aurum-circle-miniapp/ml-face-score-api/temp:/app/temp
       - ./miniapp/aurum-circle-miniapp/ml-face-score-api/models:/app/models
