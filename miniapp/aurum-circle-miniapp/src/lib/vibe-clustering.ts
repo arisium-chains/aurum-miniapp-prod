@@ -133,7 +133,6 @@ export class VibeClusterer {
   /**
    * Extract vibe-relevant features from full embedding
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   private extractVibeFeatures(
     embedding: number[],
     _face: ProcessedFace
