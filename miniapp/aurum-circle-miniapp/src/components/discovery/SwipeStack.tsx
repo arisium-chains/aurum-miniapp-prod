@@ -78,7 +78,6 @@ export function SwipeStack({ profiles, onSwipe, onSignal, className = "" }: Swip
 
   const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     const threshold = 150
-    const velocity = Math.abs(info.velocity.x) > Math.abs(info.velocity.y) ? info.velocity.x : info.velocity.y
     const isHorizontal = Math.abs(info.offset.x) > Math.abs(info.offset.y)
     
     let direction: 'left' | 'right' | 'up' | null = null
@@ -160,7 +159,7 @@ export function SwipeStack({ profiles, onSwipe, onSignal, className = "" }: Swip
             <span className="text-4xl">✨</span>
           </div>
           <h2 className="text-2xl font-bold text-text-primary mb-2">
-            You've explored everyone!
+            You&apos;ve explored everyone!
           </h2>
           <p className="text-text-muted mb-6">
             Check back later for new members joining Aurum Circle
