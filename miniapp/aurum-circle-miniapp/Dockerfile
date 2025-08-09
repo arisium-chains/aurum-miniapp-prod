@@ -10,6 +10,9 @@ WORKDIR /app
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
+# Ensure scripts are available for lifecycle hooks
+COPY scripts ./scripts
+
 # Install dependencies (including dev dependencies for build)
 RUN npm ci
 
