@@ -3,10 +3,15 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { initializeMiniKit, isInWorldApp } from '@/lib/minikit'
 
+interface MiniKitUser {
+  id: string
+  [key: string]: unknown
+}
+
 interface MiniKitContextType {
   isInstalled: boolean
   isInitialized: boolean
-  user: any | null
+  user: MiniKitUser | null
 }
 
 const MiniKitContext = createContext<MiniKitContextType>({
@@ -18,7 +23,7 @@ const MiniKitContext = createContext<MiniKitContextType>({
 export function MiniKitProvider({ children }: { children: React.ReactNode }) {
   const [isInstalled, setIsInstalled] = useState(false)
   const [isInitialized, setIsInitialized] = useState(false)
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState<MiniKitUser | null>(null)
 
   useEffect(() => {
     // Initialize MiniKit when component mounts
@@ -29,7 +34,7 @@ export function MiniKitProvider({ children }: { children: React.ReactNode }) {
       setIsInstalled(isInWorldApp())
       
       // Listen for user changes
-      const handleUserChange = (userData: any) => {
+      const handleUserChange = (userData: MiniKitUser) => {
         setUser(userData)
       }
 
