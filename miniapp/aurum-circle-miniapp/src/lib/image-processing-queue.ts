@@ -6,7 +6,6 @@
 import { Queue, Worker, Job } from "bullmq";
 import Redis from "ioredis";
 import { ProcessedFace } from "@/lib/face-embeddings";
-import { mlModelIntegration } from "@/lib/ml-models/model-integration";
 
 // Initialize Redis connection
 const redisConnection = new Redis(
