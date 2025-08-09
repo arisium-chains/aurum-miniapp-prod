@@ -1,6 +1,5 @@
 // This file is commented out due to TypeScript/ESLint issues with @worldcoin/minikit-js
 // It will be re-enabled and properly typed in a separate task.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
 /*
 import { MiniKit } from "@worldcoin/minikit-js";
 
