@@ -22,7 +22,7 @@ services:
   # Main Next.js application
   app:
     build:
-      context: ./miniapp/aurum-circle-miniapp
+      context: ../apps/web
       dockerfile: Dockerfile
     ports:
       - "3000:3000" # Expose for direct access if needed, but typically via Nginx
@@ -37,7 +37,7 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - ./miniapp/aurum-circle-miniapp/public/models:/app/public/models
+      - ../apps/web/public/models:/app/public/models
     restart: unless-stopped
     networks:
       - aurum-network
@@ -45,7 +45,7 @@ services:
   # ML Face Scoring API
   ml-api:
     build:
-      context: ./miniapp/aurum-circle-miniapp/ml-face-score-api
+      context: ../apps/ml-api
       dockerfile: Dockerfile
     ports:
       - "3001:3000" # Expose port 3001 externally, map to 3000 internally
@@ -55,8 +55,8 @@ services:
     depends_on:
       - redis
     volumes:
-      - ./miniapp/aurum-circle-miniapp/ml-face-score-api/temp:/app/temp
-      - ./miniapp/aurum-circle-miniapp/ml-face-score-api/models:/app/models
+      - ../apps/ml-api/temp:/app/temp
+      - ../apps/ml-api/models:/app/models
     restart: unless-stopped
     networks:
       - aurum-network
