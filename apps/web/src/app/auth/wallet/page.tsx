@@ -1,86 +1,87 @@
-"use client"
+'use client';
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { useMiniKit } from "@/components/providers/minikit-provider"
-import { isInWorldApp } from "@/lib/minikit"
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { useMiniKit } from '@/components/providers/minikit-provider';
+import { isInWorldApp } from '@/lib/minikit';
 
 export default function WalletConnectionPage() {
-  const [isConnecting, setIsConnecting] = useState(false)
-  const [walletAddress, setWalletAddress] = useState<string | null>(null)
-  const router = useRouter()
-  const { isInstalled } = useMiniKit()
+  const [isConnecting, setIsConnecting] = useState(false);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const router = useRouter();
+  const { isInstalled } = useMiniKit();
 
   useEffect(() => {
     // Check if user has World ID session
     const checkWorldIDSession = async () => {
       try {
-        const response = await fetch('/api/auth/session')
+        const response = await fetch('/api/auth/session');
         if (!response.ok) {
           // No valid World ID session, redirect back to World ID
-          router.push('/auth')
-          return
+          router.push('/auth');
+          return;
         }
       } catch (error) {
-        console.error('Session check failed:', error)
-        router.push('/auth')
+        console.error('Session check failed:', error);
+        router.push('/auth');
       }
-    }
+    };
 
-    checkWorldIDSession()
-  }, [router])
+    checkWorldIDSession();
+  }, [router]);
 
   const connectWallet = async () => {
     if (!isInstalled || !isInWorldApp()) {
-      alert('Please open this app in World App to connect your wallet')
-      return
+      alert('Please open this app in World App to connect your wallet');
+      return;
     }
 
-    setIsConnecting(true)
+    setIsConnecting(true);
 
     try {
       // Import MiniKit dynamically to avoid issues
-      const { MiniKit } = await import('@worldcoin/minikit-js')
-      
+      const { MiniKit } = await import('@worldcoin/minikit-js');
+
       // Request wallet connection
       const result = await MiniKit.commandsAsync.walletAuth({
-        message: "Connect your wallet to Aurum Circle",
-        requestId: crypto.randomUUID()
-      })
+        nonce: crypto.randomUUID(),
+        requestId: crypto.randomUUID(),
+      });
 
-      if (result.status === 'success' && result.address) {
-        setWalletAddress(result.address)
-        
+      if (result.finalPayload && result.finalPayload.status === 'success') {
+        const walletAddress = result.finalPayload.address;
+        setWalletAddress(walletAddress);
+
         // Store wallet connection on server
         const response = await fetch('/api/auth/wallet', {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            address: result.address,
-            signature: result.signature
-          })
-        })
+            address: walletAddress,
+            signature: result.finalPayload.signature || '',
+          }),
+        });
 
         if (response.ok) {
           // Proceed to NFT gate
-          router.push('/auth/nft-gate')
+          router.push('/auth/nft-gate');
         } else {
-          throw new Error('Failed to store wallet connection')
+          throw new Error('Failed to store wallet connection');
         }
       } else {
-        throw new Error('Wallet connection failed')
+        throw new Error('Wallet connection failed');
       }
     } catch (error) {
-      console.error('Wallet connection error:', error)
-      alert('Failed to connect wallet. Please try again.')
+      console.error('Wallet connection error:', error);
+      alert('Failed to connect wallet. Please try again.');
     } finally {
-      setIsConnecting(false)
+      setIsConnecting(false);
     }
-  }
+  };
 
   if (!isInstalled) {
     return (
@@ -99,7 +100,7 @@ export default function WalletConnectionPage() {
           </div>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -140,7 +141,9 @@ export default function WalletConnectionPage() {
           {walletAddress ? (
             <div className="text-center">
               <div className="p-4 bg-accent/20 rounded-lg mb-4">
-                <p className="text-sm text-text-muted mb-1">Connected Wallet:</p>
+                <p className="text-sm text-text-muted mb-1">
+                  Connected Wallet:
+                </p>
                 <p className="font-mono text-sm text-text-primary">
                   {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
                 </p>
@@ -156,7 +159,9 @@ export default function WalletConnectionPage() {
           ) : (
             <>
               <div className="bg-card-muted p-4 rounded-lg mb-6">
-                <h3 className="font-semibold mb-2 text-text-primary">Why do we need your wallet?</h3>
+                <h3 className="font-semibold mb-2 text-text-primary">
+                  Why do we need your wallet?
+                </h3>
                 <ul className="text-sm text-text-muted space-y-1">
                   <li>• Verify exclusive NFT holdings</li>
                   <li>• Enable blockchain features</li>
@@ -176,12 +181,13 @@ export default function WalletConnectionPage() {
                     Connecting Wallet...
                   </div>
                 ) : (
-                  "Connect Wallet"
+                  'Connect Wallet'
                 )}
               </Button>
 
               <p className="text-xs text-text-muted text-center mt-4">
-                Your wallet will be used to verify NFT ownership only. We never store your private keys.
+                Your wallet will be used to verify NFT ownership only. We never
+                store your private keys.
               </p>
             </>
           )}
@@ -199,5 +205,5 @@ export default function WalletConnectionPage() {
         </div>
       </Card>
     </div>
-  )
+  );
 }

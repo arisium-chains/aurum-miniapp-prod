@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useMiniKit } from "@/components/providers/minikit-provider";
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useMiniKit } from '@/components/providers/minikit-provider';
 
 interface SessionIndicatorProps {
   className?: string;
 }
 
-export function SessionIndicator({ className = "" }: SessionIndicatorProps) {
+export function SessionIndicator({ className = '' }: SessionIndicatorProps) {
   const { isInstalled, isInitialized, user } = useMiniKit();
   const [showDetails, setShowDetails] = useState(false);
   const [sessionExpiry, setSessionExpiry] = useState<Date | null>(null);
@@ -30,17 +30,20 @@ export function SessionIndicator({ className = "" }: SessionIndicatorProps) {
 
       return () => clearInterval(interval);
     }
+
+    // Return undefined if no cleanup is needed
+    return undefined;
   }, [user]);
 
   const formatExpiryTime = () => {
-    if (!sessionExpiry) return "";
+    if (!sessionExpiry) return '';
 
     const now = new Date();
     const diffInMinutes = Math.floor(
       (sessionExpiry.getTime() - now.getTime()) / 60000
     );
 
-    if (diffInMinutes < 1) return "Expires soon";
+    if (diffInMinutes < 1) return 'Expires soon';
     if (diffInMinutes < 60) return `Expires in ${diffInMinutes}m`;
 
     const hours = Math.floor(diffInMinutes / 60);
@@ -51,36 +54,36 @@ export function SessionIndicator({ className = "" }: SessionIndicatorProps) {
   const getSessionStatus = () => {
     if (!isInstalled) {
       return {
-        status: "not-installed",
-        color: "bg-gray-500",
-        label: "World App Required",
-        description: "Open in World App to authenticate",
+        status: 'not-installed',
+        color: 'bg-gray-500',
+        label: 'World App Required',
+        description: 'Open in World App to authenticate',
       };
     }
 
     if (!isInitialized) {
       return {
-        status: "initializing",
-        color: "bg-yellow-500",
-        label: "Initializing",
-        description: "Setting up authentication",
+        status: 'initializing',
+        color: 'bg-yellow-500',
+        label: 'Initializing',
+        description: 'Setting up authentication',
       };
     }
 
     if (!user) {
       return {
-        status: "not-authenticated",
-        color: "bg-red-500",
-        label: "Not Authenticated",
-        description: "Verify World ID to access",
+        status: 'not-authenticated',
+        color: 'bg-red-500',
+        label: 'Not Authenticated',
+        description: 'Verify World ID to access',
       };
     }
 
     return {
-      status: "authenticated",
-      color: "bg-green-500",
-      label: "Authenticated",
-      description: "Session active and secure",
+      status: 'authenticated',
+      color: 'bg-green-500',
+      label: 'Authenticated',
+      description: 'Session active and secure',
     };
   };
 
@@ -97,7 +100,7 @@ export function SessionIndicator({ className = "" }: SessionIndicatorProps) {
       >
         <div className="relative">
           <div className={`w-3 h-3 rounded-full ${config.color}`} />
-          {config.status === "initializing" && (
+          {config.status === 'initializing' && (
             <motion.div
               className={`absolute inset-0 rounded-full ${config.color} opacity-50`}
               animate={{ scale: [1, 1.5, 1] }}
@@ -122,7 +125,7 @@ export function SessionIndicator({ className = "" }: SessionIndicatorProps) {
             <div className="flex items-center gap-3 mb-3">
               <div className="relative">
                 <div className={`w-3 h-3 rounded-full ${config.color}`} />
-                {config.status === "initializing" && (
+                {config.status === 'initializing' && (
                   <motion.div
                     className={`absolute inset-0 rounded-full ${config.color} opacity-50`}
                     animate={{ scale: [1, 1.5, 1] }}
@@ -148,21 +151,21 @@ export function SessionIndicator({ className = "" }: SessionIndicatorProps) {
                 <div className="w-full bg-bg-tertiary rounded-full h-2">
                   <motion.div
                     className="bg-accent-gold h-2 rounded-full"
-                    initial={{ width: "100%" }}
-                    animate={{ width: "0%" }}
-                    transition={{ duration: 3600, ease: "linear" }}
+                    initial={{ width: '100%' }}
+                    animate={{ width: '0%' }}
+                    transition={{ duration: 3600, ease: 'linear' }}
                   />
                 </div>
               </div>
             )}
 
-            {config.status === "not-authenticated" && (
+            {config.status === 'not-authenticated' && (
               <button
                 className="w-full py-2 px-3 bg-accent-gold text-bg-primary rounded-lg text-sm font-medium hover:bg-yellow-600 transition-colors"
                 onClick={() => {
                   // In a real app, this would trigger World ID verification
                   // For now, we'll just simulate authentication
-                  window.location.href = "/";
+                  window.location.href = '/';
                 }}
               >
                 Verify World ID
@@ -175,8 +178,8 @@ export function SessionIndicator({ className = "" }: SessionIndicatorProps) {
                 onClick={() => {
                   // In a real app, this would log out the user
                   // For now, we'll just simulate logout
-                  localStorage.removeItem("walletAddress");
-                  window.location.href = "/";
+                  localStorage.removeItem('walletAddress');
+                  window.location.href = '/';
                 }}
               >
                 Log Out

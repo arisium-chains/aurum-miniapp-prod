@@ -141,8 +141,12 @@ World ID → Wallet Connection → NFT Gate → Profile Setup → Main App
 - Dark academia UI design
 - Session management
 - **AI Attractiveness Scoring Engine** (v2.5)
-- **ML Model Integration** (Real + Simulated modes)
-- **Face Quality Validation** (Demo-optimized)
+- **Standalone ML Service Integration** - Communicates with dedicated ML API service
+- **ML Service Client** - Robust client with health checking and fallback mechanisms
+- **Real ONNX Model Processing** - Advanced face detection, embedding extraction, and attractiveness scoring
+- **Batch Processing Support** - Handle multiple images efficiently
+- **Fallback Mechanisms** - Graceful degradation to simulated ML when service unavailable
+- **Face Quality Validation** (Production-ready)
 - **Vector-based Similarity Matching**
 - **Percentile Ranking System**
 - **Final Score Calculation API** (facial + university + NFT)
@@ -157,7 +161,7 @@ World ID → Wallet Connection → NFT Gate → Profile Setup → Main App
 - **Score Expiry System**
 - **Modular ML Logic**
 - **Multi-chain NFT Support**
-- **Rust ML Services Integration** - High-performance face detection and embedding extraction
+- **Production-Ready ML Architecture** - Standalone service with comprehensive monitoring
 
 ### 🔄 Next Steps
 

@@ -1,3 +1,8 @@
+// [DEPRECATED: 2025-08-11] Local logger implementation preserved for reference
+// This logger has been replaced with the shared logger from @shared/utils
+// All imports should now use: import { logger } from '@shared/utils';
+
+/*
 import winston from "winston";
 
 const logger = winston.createLogger({
@@ -26,3 +31,7 @@ if (process.env.NODE_ENV === "production") {
 }
 
 export { logger };
+*/
+
+// Temporary re-export for backward compatibility during transition
+export { logger } from '@shared/utils';

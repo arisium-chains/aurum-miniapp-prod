@@ -1,22 +1,19 @@
-// User types
-export interface User {
-  id: string;
-  worldId: string;
-  walletAddress: string;
-  handle: string;
-  displayName: string;
-  bio?: string;
-  profileImage: string;
-  blurredImage: string;
-  vibe: "Wicked" | "Royal" | "Mystic";
-  tags: string[];
-  nftVerified: boolean;
-  lastSeen: Date;
-  createdAt: Date;
-  status: "active" | "suspended" | "deleted";
-}
+// [DEPRECATED: 2025-08-11] Local type definitions preserved for reference
+// Import shared types for local use
+import type { User } from '@shared/types';
 
-// Authentication types
+// Re-export shared types
+export type {
+  User,
+  UserSession,
+  WorldIdProof as WorldIDProof,
+  Invite,
+  ProfileCard,
+  Match,
+  DiscoveryPreferences as DiscoveryFilters,
+} from '@shared/types';
+
+// App-specific session interface extending shared UserSession
 export interface Session {
   user: User;
   wallet: string;
@@ -24,66 +21,23 @@ export interface Session {
   expiresAt: Date;
 }
 
-export interface WorldIDProof {
-  merkle_root: string;
-  nullifier_hash: string;
-  proof: string;
-  verification_level: string;
-}
-
-// Matching types
+// App-specific signal interface (extended from shared discovery types)
 export interface Signal {
   id: string;
   fromUserId: string;
   toUserId: string;
-  type: "interest" | "super_interest" | "pass";
+  type: 'interest' | 'super_interest' | 'pass';
   message?: string;
   sentAt: Date;
 }
 
-export interface Match {
-  id: string;
-  user1Id: string;
-  user2Id: string;
-  matchedAt: Date;
-  conversationId?: string;
-  status: "pending" | "matched" | "unmatched";
-  otherUser: User; // Populated based on current user
-}
-
-// Invite types
-export interface Invite {
-  id: string;
-  code: string;
-  createdBy: string;
-  claimedBy?: string;
-  claimedAt?: Date;
-  expiresAt: Date;
-  maxUses: number;
-  currentUses: number;
-  status: "active" | "expired" | "exhausted";
-}
-
+// App-specific invite claim interface
 export interface InviteClaim {
   id: string;
   inviteId: string;
   claimedBy: string;
   claimedAt: Date;
-  claimer: Pick<User, "id" | "handle" | "displayName" | "profileImage">;
-}
-
-// Discovery types
-export interface ProfileCard {
-  user: User;
-  isBlurred: boolean;
-  commonTags: string[];
-  distance?: number;
-}
-
-export interface DiscoveryFilters {
-  vibe?: "Wicked" | "Royal" | "Mystic" | "All";
-  tags?: string[];
-  maxDistance?: number;
+  claimer: Pick<User, 'id' | 'handle' | 'displayName' | 'profilePhoto'>;
 }
 
 // API Response types

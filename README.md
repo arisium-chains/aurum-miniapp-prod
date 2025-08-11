@@ -1,125 +1,194 @@
-# Aurum Circle - Production Deployment
+# Aurum Workspace
 
-This directory contains the production deployment configuration for the Aurum Circle application.
+A monorepo workspace containing advanced ML services, web applications, and shared packages for the Aurum face scoring platform with standalone ML architecture.
 
-## Overview
+## 🚀 Recent Migration: Standalone ML Service Architecture
 
-This deployment includes:
+**Migration Completed: 2025-08-11**
 
-- Main Next.js application
-- ML Face Scoring API
-- Redis for job queue and caching
-- Qdrant vector database
-- Nginx reverse proxy (running in Docker)
+We've successfully migrated from a nested ML API to a clean, standalone ML service architecture:
 
-## Architecture
+- **Before**: Nested ML API with architectural boundary violations
+- **After**: Standalone ML service with enhanced ONNX capabilities, batch processing, and production-ready features
+- **Benefits**: Better separation of concerns, improved scalability, enhanced ML capabilities, robust error handling
 
-Nginx acts as the single entry point for the deployment:
+## Architecture Overview
 
-- Requests to `/` and `/api/*` are forwarded to the Next.js application which handles UI and API routes internally.
-- Requests to `/ml-api/*` are proxied to the ML Face Scoring API service.
+```
+Web Application → ML Service Client → Standalone ML API → ONNX Runtime
+                      ↓                       ↓              ↓
+                   Fallback              BullMQ Queues    Face Detection
+                   Handling              Redis Cache      Face Embedding
+                                                         Attractiveness Scoring
+```
 
-Both services run on the same Docker network and communicate directly without an API gateway.
+## Structure
 
-## Prerequisites
+```
+aurum-workspace/
+├── apps/                    # Applications
+│   ├── web/                # Next.js web application with ML service client
+│   ├── ml-api/             # Standalone ML scoring API service (NEW)
+│   └── landing-page/       # Marketing landing page
+├── packages/               # Shared packages
+│   ├── shared-types/       # Shared TypeScript types
+│   ├── shared-utils/       # Shared utilities and error handling
+│   └── shared-config/      # Shared configuration patterns
+├── scripts/                # Utility scripts
+│   ├── analyze-codebase.js # Codebase analysis tool
+│   ├── backup.js           # Backup management tool
+│   └── validate-cleanup.js # Cleanup validation tool
+├── deploy/                 # Deployment configurations
+├── ARCHITECTURE.md         # Comprehensive architecture documentation
+└── ML_SERVICE_INTEGRATION_GUIDE.md # Integration guide
+```
 
-- Docker and Docker Compose installed
-- Git
+## Quick Start
 
-## Deployment Steps
+```bash
+# Install dependencies
+npm install
 
-1. Clone the repository:
+# Build all packages
+npm run build
 
-   ```bash
-   git clone <repository-url>
-   cd aurum-circle
-   ```
+# Start development servers
+npm run dev
 
-2. Navigate to the deployment directory:
+# Run tests
+npm run test
 
-   ```bash
-   cd /path/to/aurum-circle
-   ```
+# Lint code
+npm run lint
+```
 
-3. Start the services:
+## Scripts
 
-   ```bash
-   docker-compose up -d
-   ```
+### Codebase Analysis
 
-4. The application will be available at:
-   - Main app: http://localhost
-   - ML API: http://localhost/ml-api/
-   - Direct app access: http://localhost:3000
-   - Direct ML API access: http://localhost:3001
+Analyze the codebase for unused files, duplicates, and optimization opportunities:
 
-## Configuration
+```bash
+npm run analyze
+```
 
-### Environment Variables
+### Backup Management
 
-Before deploying, update the environment variables in the service directories:
+Create backups before making changes:
 
-- `miniapp/aurum-circle-miniapp/.env.local` – set `ML_API_URL` to the internal ML API address (e.g., `http://ml-api:3000` or `http://localhost/ml-api`).
-- `miniapp/ml-face-score-api/.env.local` – configure service settings such as `REDIS_URL`.
+```bash
+# Create full backup
+npm run backup full "Description"
 
-### Nginx Configuration
+# Create selective backup
+node scripts/backup.js selective file1.js file2.js
 
-The Nginx configuration can be found at `nginx/conf/default.conf`. Update the `server_name` directive with your domain for production use.
+# List backups
+node scripts/backup.js list
 
-### SSL Certificate
+# Restore backup
+node scripts/backup.js restore backup-name
+```
 
-For production deployment with HTTPS, add your SSL certificates to `nginx/certs/` and update the Nginx configuration accordingly.
+### Docker
 
-## Services
+```bash
+# Build and start services
+npm run docker:up
 
-- **app**: Main Next.js application (port 3000)
-- **ml-api**: ML Face Scoring API (port 3001)
-- **redis**: Redis database (port 6379)
-- **qdrant**: Qdrant vector database (ports 6333, 6334)
-- **nginx**: Reverse proxy (ports 80, 443)
+# Development mode
+npm run docker:dev
 
-## Volumes
+# Production mode
+npm run docker:prod
 
-- **redis_data**: Persistent storage for Redis data
-- **qdrant_storage**: Persistent storage for Qdrant data
+# Stop services
+npm run docker:down
+```
 
-## Networks
+## ✨ Key Features
 
-All services share the `aurum-network` bridge network. Nginx is the only exposed container and proxies traffic to the Next.js app and the ML API service.
+### Advanced ML Capabilities
 
-## Troubleshooting
+- **Real ONNX Model Processing** - Face detection, embedding extraction, and attractiveness scoring
+- **Batch Processing** - Process multiple images in parallel with configurable batch sizes
+- **Fallback Mechanisms** - Graceful degradation to simulated ML when models unavailable
+- **Quality Validation** - Comprehensive face quality metrics and thresholds
 
-If you encounter issues:
+### Production-Ready Infrastructure
 
-1. Check service logs:
+- **BullMQ Queues** - Advanced queue management with monitoring dashboard
+- **Redis Caching** - High-performance caching layer
+- **Rate Limiting** - Configurable request throttling
+- **Health Monitoring** - Detailed service and model status endpoints
+- **Comprehensive Logging** - Structured logging with request tracking
 
-   ```bash
-   docker-compose logs <service-name>
-   ```
+### Monorepo Integration
 
-2. Ensure all services are running:
+- **Shared Types** - Consistent type definitions across services
+- **Shared Utilities** - Standardized error handling and logging
+- **Configuration Management** - Centralized config patterns
 
-   ```bash
-   docker-compose ps
-   ```
+## Development
 
-3. Restart services if needed:
-   ```bash
-   docker-compose restart
-   ```
+This workspace uses:
 
-## Updating the Application
+- **Turborepo** for build orchestration
+- **TypeScript** for type safety
+- **ESLint** for code quality
+- **Prettier** for code formatting
 
-To update the application:
+## Applications
 
-1. Pull the latest changes:
+### Web App (`apps/web`)
 
-   ```bash
-   git pull
-   ```
+Next.js application with face scoring functionality, user authentication, and discovery features. Now integrates with the standalone ML service via ML Service Client with robust fallback mechanisms.
 
-2. Rebuild and restart services:
-   ```bash
-   docker-compose down
-   docker-compose up --build -d
-   ```
+**Key Integrations:**
+
+- ML Service Client for communication with standalone ML API
+- Fallback engines for graceful degradation
+- Redis caching for performance optimization
+- Comprehensive error handling and user feedback
+
+### ML API (`apps/ml-api`)
+
+Standalone ML scoring API service with advanced ONNX model processing, queue management, and production-ready monitoring capabilities.
+
+**Key Features:**
+
+- ONNX Runtime integration for face detection, embedding extraction, and attractiveness scoring
+- BullMQ queue system for scalable image processing
+- Redis caching and session management
+- Health monitoring and status endpoints
+- Batch processing capabilities
+- Comprehensive error handling and logging
+
+### Landing Page (`apps/landing-page`)
+
+Marketing landing page for the Aurum platform.
+
+## Packages
+
+### Shared Types (`packages/shared-types`)
+
+Common TypeScript type definitions used across applications, including ML processing results, API responses, and service interfaces.
+
+### Shared Utils (`packages/shared-utils`)
+
+Shared utilities including standardized error handling, logging, and validation functions used across all services.
+
+### Shared Config (`packages/shared-config`)
+
+Common configuration patterns for TypeScript, ESLint, Prettier, and Jest across the monorepo.
+
+## Contributing
+
+1. Create a feature branch
+2. Make your changes
+3. Run tests and linting
+4. Create a pull request
+
+## License
+
+MIT

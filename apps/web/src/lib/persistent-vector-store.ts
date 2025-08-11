@@ -24,7 +24,7 @@ export class PersistentVectorStore {
       // Check if collection exists
       const collections = await qdrantClient.getCollections();
       const collectionExists = collections.collections.some(
-        (collection) => collection.name === COLLECTION_NAME
+        collection => collection.name === COLLECTION_NAME
       );
 
       if (!collectionExists) {
@@ -35,7 +35,7 @@ export class PersistentVectorStore {
             distance: 'Cosine',
           },
         });
-        
+
         console.log(`Created Qdrant collection: ${COLLECTION_NAME}`);
       } else {
         console.log(`Qdrant collection ${COLLECTION_NAME} already exists`);
@@ -134,10 +134,16 @@ export class PersistentVectorStore {
     targetEmbedding: number[],
     limit: number = 10,
     excludeUserId?: string
-  ): Promise<Array<{ userId: string; similarity: number; metadata: UserEmbedding['metadata'] }>> {
+  ): Promise<
+    Array<{
+      userId: string;
+      similarity: number;
+      metadata: UserEmbedding['metadata'];
+    }>
+  > {
     try {
       const normalizedTarget = this.normalizeVector(targetEmbedding);
-      
+
       // Search in Qdrant
       const response = await qdrantClient.search(COLLECTION_NAME, {
         vector: normalizedTarget,
@@ -146,7 +152,9 @@ export class PersistentVectorStore {
       });
 
       const similarities = response
-        .filter(point => !excludeUserId || point.payload?.userId !== excludeUserId)
+        .filter(
+          point => !excludeUserId || point.payload?.userId !== excludeUserId
+        )
         .slice(0, limit)
         .map(point => ({
           userId: point.payload?.userId as string,
@@ -190,7 +198,10 @@ export class PersistentVectorStore {
       // Resolve ties with timestamp (earlier = higher rank)
       users.sort((a, b) => {
         if (Math.abs((a.score || 0) - (b.score || 0)) < 0.1) {
-          return new Date(a.metadata.timestamp).getTime() - new Date(b.metadata.timestamp).getTime();
+          return (
+            new Date(a.metadata.timestamp).getTime() -
+            new Date(b.metadata.timestamp).getTime()
+          );
         }
         return (b.score || 0) - (a.score || 0);
       });
@@ -228,14 +239,25 @@ export class PersistentVectorStore {
         return {
           mean: 0,
           std: 0,
-          percentiles: { p10: 0, p25: 0, p50: 0, p75: 0, p90: 0, p95: 0, p99: 0 },
+          percentiles: {
+            p10: 0,
+            p25: 0,
+            p50: 0,
+            p75: 0,
+            p90: 0,
+            p95: 0,
+            p99: 0,
+          },
         };
       }
 
       scores.sort((a, b) => a - b);
 
-      const mean = scores.reduce((sum, score) => sum + score, 0) / scores.length;
-      const variance = scores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) / scores.length;
+      const mean =
+        scores.reduce((sum, score) => sum + score, 0) / scores.length;
+      const variance =
+        scores.reduce((sum, score) => sum + Math.pow(score - mean, 2), 0) /
+        scores.length;
       const std = Math.sqrt(variance);
 
       const percentiles = {
@@ -264,7 +286,7 @@ export class PersistentVectorStore {
    */
   static async getUserCount(): Promise<number> {
     try {
-      const response = await qdrantClient.getCount(COLLECTION_NAME);
+      const response = await qdrantClient.count(COLLECTION_NAME);
       return response.count;
     } catch (error) {
       console.error('Error getting user count:', error);
@@ -288,13 +310,14 @@ export class PersistentVectorStore {
       for (const point of response.points) {
         const userId = point.payload?.userId as string;
         const newScore = await this.calculatePercentileScore(userId);
-        
+
         if (newScore !== null) {
           // Update the point with the new score
           await qdrantClient.upsert(COLLECTION_NAME, {
             points: [
               {
                 id: userId,
+                vector: point.vector as number[],
                 payload: {
                   ...point.payload,
                   score: newScore,
@@ -312,7 +335,9 @@ export class PersistentVectorStore {
   /**
    * Calculate percentile score for a user based on similarity to all others
    */
-  private static async calculatePercentileScore(userId: string): Promise<number | null> {
+  private static async calculatePercentileScore(
+    userId: string
+  ): Promise<number | null> {
     try {
       const userPoint = await qdrantClient.retrieve(COLLECTION_NAME, {
         ids: [userId],
@@ -354,7 +379,10 @@ export class PersistentVectorStore {
       const allAvgSimilarities = await this.getAllAverageSimilarities();
 
       // Calculate percentile rank
-      const percentile = this.calculatePercentileRank(userAvgSimilarity, allAvgSimilarities);
+      const percentile = this.calculatePercentileRank(
+        userAvgSimilarity,
+        allAvgSimilarities
+      );
 
       return Math.round(percentile * 1000) / 10; // Round to 1 decimal place
     } catch (error) {
@@ -392,7 +420,8 @@ export class PersistentVectorStore {
 
         if (similarities.length > 0) {
           const avgSimilarity =
-            similarities.reduce((sum, sim) => sum + sim, 0) / similarities.length;
+            similarities.reduce((sum, sim) => sum + sim, 0) /
+            similarities.length;
           avgSimilarities.push(avgSimilarity);
         }
       }
@@ -407,7 +436,10 @@ export class PersistentVectorStore {
   /**
    * Calculate percentile rank of a value in an array
    */
-  private static calculatePercentileRank(value: number, array: number[]): number {
+  private static calculatePercentileRank(
+    value: number,
+    array: number[]
+  ): number {
     if (array.length === 0) return 1.0;
 
     const sorted = [...array].sort((a, b) => a - b);
@@ -427,7 +459,10 @@ export class PersistentVectorStore {
   /**
    * Get percentile value from sorted array
    */
-  private static getPercentile(sortedArray: number[], percentile: number): number {
+  private static getPercentile(
+    sortedArray: number[],
+    percentile: number
+  ): number {
     const index = Math.ceil(sortedArray.length * percentile) - 1;
     return sortedArray[Math.max(0, index)];
   }
@@ -510,7 +545,9 @@ export class PersistentVectorStore {
   static async importData(data: UserEmbedding[]): Promise<void> {
     try {
       const points = data
-        .filter(userEmbedding => this.validateEmbedding(userEmbedding.embedding))
+        .filter(userEmbedding =>
+          this.validateEmbedding(userEmbedding.embedding)
+        )
         .map(userEmbedding => ({
           id: userEmbedding.userId,
           vector: userEmbedding.embedding,

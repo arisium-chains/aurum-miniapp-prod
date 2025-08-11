@@ -1,0 +1,44 @@
+{
+  "name": "@shared/utils",
+  "version": "1.0.0",
+  "description": "Shared utility functions for Aurum Miniapp monorepo",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit",
+    "dev": "tsc --watch",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "keywords": [
+    "utils",
+    "utilities",
+    "logger",
+    "validation",
+    "shared",
+    "monorepo"
+  ],
+  "author": "Arisium",
+  "license": "MIT",
+  "dependencies": {
+    "winston": "^3.8.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "@types/node": "^20.0.0",
+    "jest": "^29.0.0",
+    "@types/jest": "^29.0.0",
+    "ts-jest": "^29.0.0"
+  },
+  "peerDependencies": {
+    "@shared/types": "^1.0.0"
+  }
+}

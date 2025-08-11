@@ -1,11 +1,11 @@
-version: "3.8"
+version: '3.8'
 
 services:
   # Main Next.js application
   app:
     build: .
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - NODE_ENV=production
       - REDIS_URL=redis://redis:6379
@@ -24,7 +24,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6381:6379"
+      - '6381:6379'
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes
@@ -34,19 +34,19 @@ services:
   qdrant:
     image: qdrant/qdrant
     ports:
-      - "6334:6333"
-      - "6335:6334"
+      - '6334:6333'
+      - '6335:6334'
     volumes:
       - qdrant_storage:/qdrant/storage
     restart: unless-stopped
 
-  # ML Face Scoring API Service
+  # ML Face Scoring API Service (using standalone ml-api)
   ml-api:
     build:
-      context: ./ml-face-score-api
+      context: ../ml-api
       dockerfile: Dockerfile
     ports:
-      - "3001:3000"
+      - '3001:3000'
     environment:
       - NODE_ENV=production
       - REDIS_URL=redis://redis:6379
@@ -58,14 +58,14 @@ services:
       - face-detection-service
       - face-embedding-service
     volumes:
-      - ./ml-face-score-api/temp:/app/temp
-      - ./ml-face-score-api/models:/app/models
+      - ../ml-api/temp:/app/temp
+      - ../ml-api/models:/app/models
     restart: unless-stopped
 
-  # ML Worker for processing face scoring jobs
+  # ML Worker for processing face scoring jobs (using standalone ml-api)
   ml-worker:
     build:
-      context: ./ml-face-score-api
+      context: ../ml-api
       dockerfile: Dockerfile
     environment:
       - NODE_ENV=production
@@ -77,8 +77,8 @@ services:
       - face-detection-service
       - face-embedding-service
     volumes:
-      - ./ml-face-score-api/temp:/app/temp
-      - ./ml-face-score-api/models:/app/models
+      - ../ml-api/temp:/app/temp
+      - ../ml-api/models:/app/models
     command: node dist/worker.js
     restart: unless-stopped
 
@@ -88,7 +88,7 @@ services:
       context: ../../aurum-ml-services
       dockerfile: face-detection/Dockerfile
     ports:
-      - "8001:8001"
+      - '8001:8001'
     environment:
       - PORT=8001
       - MODEL_PATH=/app/models/face_detection_model.onnx
@@ -104,7 +104,7 @@ services:
       context: ../../aurum-ml-services
       dockerfile: face-embedding/Dockerfile
     ports:
-      - "8002:8002"
+      - '8002:8002'
     environment:
       - PORT=8002
       - MODEL_PATH=/app/models/face_embedding_model.onnx
@@ -119,8 +119,8 @@ services:
   nginx:
     image: nginx:alpine
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ../nginx/conf:/etc/nginx/conf.d
       - ../nginx/certs:/etc/nginx/certs

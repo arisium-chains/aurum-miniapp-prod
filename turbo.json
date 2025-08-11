@@ -1,0 +1,145 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "globalDependencies": [
+    "**/.env.*local",
+    ".eslintrc.js",
+    ".prettierrc",
+    "tsconfig.json",
+    "package.json"
+  ],
+  "globalEnv": [
+    "NODE_ENV",
+    "DATABASE_URL",
+    "REDIS_URL",
+    "ML_API_URL",
+    "ML_API_PORT",
+    "ONNX_MODEL_PATH",
+    "NEXT_PUBLIC_*"
+  ],
+  "pipeline": {
+    "build": {
+      "dependsOn": ["^build", "type-check"],
+      "inputs": [
+        "src/**",
+        "public/**",
+        "package.json",
+        "tsconfig.json",
+        "next.config.*",
+        "prisma/schema.prisma",
+        "models/**",
+        "*.onnx"
+      ],
+      "outputs": [
+        "dist/**",
+        ".next/**",
+        "!.next/cache/**",
+        "build/**",
+        "out/**",
+        "models/**"
+      ],
+      "env": [
+        "NODE_ENV",
+        "DATABASE_URL",
+        "REDIS_URL",
+        "ML_API_URL",
+        "ML_API_PORT",
+        "ONNX_MODEL_PATH",
+        "NEXT_PUBLIC_*"
+      ]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": ["^build"]
+    },
+    "test": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "src/**",
+        "test/**",
+        "tests/**",
+        "**/*.test.*",
+        "**/*.spec.*",
+        "jest.config.*",
+        "vitest.config.*"
+      ],
+      "outputs": ["coverage/**", "test-results/**", ".nyc_output/**"]
+    },
+    "test:unit": {
+      "dependsOn": ["^build"],
+      "inputs": ["src/**", "test/**", "**/*.test.*", "**/*.spec.*"],
+      "outputs": ["coverage/**"]
+    },
+    "test:integration": {
+      "dependsOn": ["^build", "test:unit"],
+      "inputs": ["src/**", "test/**", "tests/**"],
+      "outputs": ["coverage/**"]
+    },
+    "lint": {
+      "inputs": [
+        "src/**",
+        "app/**",
+        "pages/**",
+        "components/**",
+        ".eslintrc*",
+        "eslint.config.*"
+      ],
+      "outputs": [".eslintcache"]
+    },
+    "lint:fix": {
+      "inputs": [
+        "src/**",
+        "app/**",
+        "pages/**",
+        "components/**",
+        ".eslintrc*",
+        "eslint.config.*"
+      ],
+      "outputs": [".eslintcache"],
+      "cache": false
+    },
+    "type-check": {
+      "dependsOn": ["^build"],
+      "inputs": [
+        "src/**",
+        "app/**",
+        "pages/**",
+        "components/**",
+        "tsconfig.json",
+        "**/*.d.ts"
+      ],
+      "outputs": ["tsconfig.tsbuildinfo"]
+    },
+    "clean": {
+      "cache": false,
+      "outputs": []
+    },
+    "format": {
+      "inputs": [
+        "src/**",
+        "app/**",
+        "pages/**",
+        "components/**",
+        ".prettierrc*",
+        "prettier.config.*"
+      ],
+      "outputs": [],
+      "cache": false
+    },
+    "db:generate": {
+      "inputs": ["prisma/schema.prisma"],
+      "outputs": ["node_modules/.prisma/**", "prisma/generated/**"],
+      "cache": false
+    },
+    "db:migrate": {
+      "dependsOn": ["db:generate"],
+      "cache": false
+    },
+    "docker:build": {
+      "dependsOn": ["build"],
+      "inputs": ["Dockerfile*", "docker-compose*.yml", ".dockerignore"],
+      "outputs": [],
+      "cache": false
+    }
+  }
+}

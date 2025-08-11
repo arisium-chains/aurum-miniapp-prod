@@ -1,6 +1,7 @@
-import * as ort from "onnxruntime-node";
-import { processImage as simulatedProcessImage } from "./scorer";
-import { ProcessedFaceResult, SimulatedMLResult } from "../types";
+import * as ort from 'onnxruntime-node';
+import { processImage as simulatedProcessImage } from './scorer';
+import { ProcessedFaceResult, SimulatedMLResult } from '../types';
+import { logger, ProcessingError, getErrorMessage } from '@shared/utils';
 
 interface FaceDetectionResult {
   bbox: {
@@ -29,7 +30,7 @@ export class HybridScorer {
   private useRealML: boolean;
 
   constructor() {
-    this.useRealML = process.env.USE_REAL_ML !== "false";
+    this.useRealML = process.env.USE_REAL_ML !== 'false';
   }
 
   async processImage(
@@ -40,8 +41,8 @@ export class HybridScorer {
       try {
         // Load ONNX models
         const faceDetectionModelPath =
-          "./models/face_detection/face_detection.onnx";
-        const faceEmbeddingModelPath = "./models/arcface/arcface.onnx";
+          './models/face_detection/face_detection.onnx';
+        const faceEmbeddingModelPath = './models/arcface/arcface.onnx';
 
         const faceDetectionSession = await ort.InferenceSession.create(
           faceDetectionModelPath
@@ -51,12 +52,12 @@ export class HybridScorer {
         );
 
         // Convert base64 to Uint8Array
-        const imageBuffer = Buffer.from(imageBase64, "base64");
+        const imageBuffer = Buffer.from(imageBase64, 'base64');
         const imageData = new Uint8Array(imageBuffer);
 
         // Prepare input for face detection
         const faceDetectionInput = new ort.Tensor(
-          "float32",
+          'float32',
           new Float32Array(imageData),
           [1, 3, 224, 224]
         ); // Example shape
@@ -71,7 +72,7 @@ export class HybridScorer {
           !faceDetectionResults.output ||
           faceDetectionResults.output.data.length === 0
         ) {
-          throw new Error("No faces detected");
+          throw new ProcessingError('No faces detected');
         }
 
         // Get the first face
@@ -81,7 +82,7 @@ export class HybridScorer {
 
         // Prepare input for face embedding
         const faceEmbeddingInput = new ort.Tensor(
-          "float32",
+          'float32',
           new Float32Array(imageData),
           [1, 3, 112, 112]
         ); // Example shape
@@ -96,7 +97,7 @@ export class HybridScorer {
           !faceEmbeddingResults.output ||
           faceEmbeddingResults.output.data.length === 0
         ) {
-          throw new Error("No face embedding extracted");
+          throw new ProcessingError('No face embedding extracted');
         }
 
         const embeddingData = faceEmbeddingResults.output.data;
@@ -122,17 +123,21 @@ export class HybridScorer {
           frontality: this.calculateFrontality(face),
           resolution: this.calculateResolution(face, imageBase64).toString(),
         };
-      } catch (error: any) {
-        console.warn(
-          "ONNX ML services unavailable, falling back to simulated ML:",
-          error.message
+      } catch (error) {
+        // [DEPRECATED: 2025-08-11] Old error pattern preserved for reference
+        // } catch (error: any) {
+
+        const message = getErrorMessage(error);
+        logger.warn(
+          'ONNX ML services unavailable, falling back to simulated ML:',
+          message
         );
       }
     }
 
     // Fallback to simulated ML
     // Convert base64 to a temporary file path for the existing simulated function
-    return await simulatedProcessImage("temp_image_path");
+    return await simulatedProcessImage('temp_image_path');
   }
 
   private calculateFrontality(face: FaceDetectionResult): number {

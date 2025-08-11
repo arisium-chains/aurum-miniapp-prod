@@ -1,0 +1,32 @@
+{
+  "name": "@shared/types",
+  "version": "1.0.0",
+  "description": "Shared TypeScript interfaces and types for Aurum Miniapp monorepo",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "type-check": "tsc --noEmit",
+    "dev": "tsc --watch"
+  },
+  "keywords": [
+    "typescript",
+    "types",
+    "interfaces",
+    "shared",
+    "monorepo"
+  ],
+  "author": "Arisium",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  },
+  "peerDependencies": {
+    "typescript": ">=5.0.0"
+  }
+}

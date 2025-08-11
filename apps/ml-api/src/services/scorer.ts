@@ -1,17 +1,18 @@
-import fs from "fs";
-import path from "path";
-import sharp from "sharp";
-import { hybridScorer } from "./hybrid-scorer";
-import { SimulatedMLResult } from "../types";
+import fs from 'fs';
+import path from 'path';
+import sharp from 'sharp';
+import { hybridScorer } from './hybrid-scorer';
+import { SimulatedMLResult } from '../types';
+import { logger, ProcessingError, getErrorMessage } from '@shared/utils';
 // In a real implementation, we would import and use the actual ML models
 // import * as ort from 'onnxruntime-node';
 
 // Mock function to simulate loading ML models
 export async function loadModels() {
-  console.log("Loading ML models...");
+  logger.info('Loading ML models...');
   // Simulate model loading delay
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-  console.log("ML models loaded successfully");
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  logger.info('ML models loaded successfully');
   return true;
 }
 
@@ -21,19 +22,27 @@ export async function getMLStatus() {
     // In a real implementation, we would check if the models are properly loaded
     // For now, we'll just return a mock status
     return {
-      status: "ready",
+      status: 'ready',
       models: {
-        arcface: "loaded",
-        faceDetection: "loaded",
+        arcface: 'loaded',
+        faceDetection: 'loaded',
       },
       timestamp: new Date().toISOString(),
     };
-  } catch (error: any) {
-    return {
-      status: "error",
-      error: error.message,
-      timestamp: new Date().toISOString(),
-    };
+  } catch (error) {
+    // [DEPRECATED: 2025-08-11] Old error pattern preserved for reference
+    // } catch (error: any) {
+    //   return {
+    //     status: 'error',
+    //     error: error.message,
+    //     timestamp: new Date().toISOString(),
+    //   };
+    // }
+
+    const message = getErrorMessage(error);
+    throw new ProcessingError(`ML status check failed: ${message}`, {
+      originalError: message,
+    });
   }
 }
 
@@ -74,7 +83,7 @@ async function scoreFace(embedding: number[]) {
 
 // Mock function to simulate vibe interpretation
 function interpretVibe(score: number) {
-  const vibes = ["dreamy", "charming", "radiant", "magnetic", "captivating"];
+  const vibes = ['dreamy', 'charming', 'radiant', 'magnetic', 'captivating'];
   return vibes[Math.floor(Math.random() * vibes.length)];
 }
 
@@ -88,9 +97,9 @@ export async function processImage(
     let actualImagePath = imagePath;
 
     // If this is a base64 string, save it to a temporary file
-    if (imagePath.startsWith("/9j/") || imagePath.startsWith("iVBOR")) {
+    if (imagePath.startsWith('/9j/') || imagePath.startsWith('iVBOR')) {
       // This looks like base64 data
-      const tempPath = path.join("temp", `temp_image_${Date.now()}.jpg`);
+      const tempPath = path.join('temp', `temp_image_${Date.now()}.jpg`);
       // In a real implementation, we would decode and save the base64 data
       actualImagePath = tempPath;
     }
@@ -125,7 +134,7 @@ export async function processImage(
         fs.unlinkSync(croppedFacePath);
       }
     } catch (error) {
-      console.warn("Failed to clean up temporary files:", error);
+      logger.warn('Failed to clean up temporary files:', error);
     }
 
     return {
@@ -142,11 +151,20 @@ export async function processImage(
       embedding,
       quality: parseFloat((Math.random() * 0.3 + 0.6).toFixed(4)),
       frontality: parseFloat((Math.random() * 0.3 + 0.6).toFixed(4)),
-      resolution: "1920x1080",
+      resolution: '1920x1080',
     };
-  } catch (error: any) {
-    console.error("Error processing image:", error);
-    throw error;
+  } catch (error) {
+    // [DEPRECATED: 2025-08-11] Old error pattern preserved for reference
+    // } catch (error: any) {
+    //   logger.error('Error processing image:', error);
+    //   throw error;
+    // }
+
+    logger.error('Image processing error:', error);
+    const message = getErrorMessage(error);
+    throw new ProcessingError(`Image processing failed: ${message}`, {
+      originalError: message,
+    });
   }
 }
 
@@ -155,8 +173,17 @@ export async function processImageBase64(imageBase64: string) {
   try {
     // Use the hybrid scorer which will try real ML first and fall back to simulated
     return await hybridScorer.processImage(imageBase64);
-  } catch (error: any) {
-    console.error("Error processing base64 image:", error);
-    throw error;
+  } catch (error) {
+    // [DEPRECATED: 2025-08-11] Old error pattern preserved for reference
+    // } catch (error: any) {
+    //   logger.error('Error processing base64 image:', error);
+    //   throw error;
+    // }
+
+    logger.error('Base64 image processing error:', error);
+    const message = getErrorMessage(error);
+    throw new ProcessingError(`Base64 image processing failed: ${message}`, {
+      originalError: message,
+    });
   }
 }

@@ -7,6 +7,11 @@
     "build": "next build",
     "start": "node .next/standalone/server.js",
     "lint": "next lint",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:integration": "jest --testPathPattern=test/integration",
+    "test:ci": "jest --ci --coverage --watchAll=false",
     "worker": "node .next/standalone/src/lib/image-processing-queue.js",
     "optimize": "bash scripts/optimize-models.sh",
     "cleanup": "bash scripts/cleanup.sh",
@@ -16,6 +21,9 @@
     "preupload": "npm run optimize && npm run cleanup"
   },
   "dependencies": {
+    "@shared/types": "workspace:*",
+    "@shared/config": "workspace:*",
+    "@shared/utils": "workspace:*",
     "@prisma/client": "^6.13.0",
     "@qdrant/js-client-rest": "^1.12.0",
     "@radix-ui/react-avatar": "^1.1.10",
@@ -58,12 +66,18 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@types/jest": "^29.5.12",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/supertest": "^6.0.2",
     "eslint": "^9",
     "eslint-config-next": "15.4.4",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
     "prisma": "^6.13.0",
+    "supertest": "^6.3.4",
+    "ts-jest": "^29.1.2",
     "typescript": "^5"
   }
 }
