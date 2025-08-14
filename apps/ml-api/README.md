@@ -55,9 +55,9 @@ NODE_ENV=development
 SERVICE_NAME=ml-api
 
 # Redis Configuration
-REDIS_URL=redis://localhost:6379
+REDIS_URL=redis://localhost:6380
 REDIS_HOST=localhost
-REDIS_PORT=6379
+REDIS_PORT=6380
 REDIS_PASSWORD=
 REDIS_DB=0
 

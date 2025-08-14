@@ -17,9 +17,9 @@ const envSchema = Joi.object({
   SERVICE_NAME: Joi.string().default('ml-api'),
 
   // Redis Configuration
-  REDIS_URL: Joi.string().default('redis://localhost:6379'),
+  REDIS_URL: Joi.string().default('redis://localhost:6380'),
   REDIS_HOST: Joi.string().default('localhost'),
-  REDIS_PORT: Joi.number().default(6379),
+  REDIS_PORT: Joi.number().default(6380),
   REDIS_PASSWORD: Joi.string().allow('').default(''),
   REDIS_DB: Joi.number().default(0),
 

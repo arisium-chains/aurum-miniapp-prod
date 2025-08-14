@@ -24,7 +24,7 @@ make deploy    # Deploy application
 - Ubuntu 20.04 LTS or later
 - Docker 20.10+ and Docker Compose v2
 - At least 4GB RAM and 20GB disk space
-- Open ports: 80, 443 (optional), 3000, 3001, 6333, 6379
+- Open ports: 80, 443 (optional), 3000, 3001, 6333, 6380
 
 ### Install Docker on Ubuntu
 

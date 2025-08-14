@@ -7,7 +7,7 @@ export function createRedisClient(): RedisClientType {
 
   // Use localhost for local development, redis hostname for Docker
   const client: RedisClientType = createClient({
-    url: process.env.REDIS_URL || 'redis://localhost:6379',
+    url: process.env.REDIS_URL || 'redis://localhost:6380',
   });
 
   client.on('error', (err: Error) => {

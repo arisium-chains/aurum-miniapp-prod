@@ -11,7 +11,7 @@ The Aurum Miniapp is now **production-ready** and successfully deployed with all
 | **Web App** | ✅ Running | 3000 | http://localhost/api/health |
 | **ML API** | ✅ Running | 3001 | http://localhost/ml-api/api/health |
 | **Nginx** | ✅ Running | 80 | http://localhost/ |
-| **Redis** | ✅ Running | 6379 | Internal health checks |
+| **Redis** | ✅ Running | 6380 | Internal health checks |
 | **Qdrant** | ✅ Running | 6333 | Internal health checks |
 
 ## 🔧 Major Issues Fixed
