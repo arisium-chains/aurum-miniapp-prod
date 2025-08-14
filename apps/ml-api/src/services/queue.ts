@@ -9,7 +9,7 @@ import { createRedisClient } from '../utils/redis';
 import { logger } from '@shared/utils';
 
 // Configuration
-const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+const redisUrl = process.env.REDIS_URL || 'redis://localhost:6380';
 
 // Module state
 let redisClient: ReturnType<typeof createRedisClient> | null = null;
