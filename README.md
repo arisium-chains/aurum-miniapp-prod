@@ -1,194 +1,171 @@
-# Aurum Workspace
+# Aurum Miniapp - Production Ready
 
-A monorepo workspace containing advanced ML services, web applications, and shared packages for the Aurum face scoring platform with standalone ML architecture.
+A production-ready face scoring application with ML capabilities, built with Next.js and a standalone ML API service.
 
-## 🚀 Recent Migration: Standalone ML Service Architecture
+## 🚀 Quick Start
 
-**Migration Completed: 2025-08-11**
+```bash
+# Validate deployment configuration
+./validate-deployment.sh
 
-We've successfully migrated from a nested ML API to a clean, standalone ML service architecture:
-
-- **Before**: Nested ML API with architectural boundary violations
-- **After**: Standalone ML service with enhanced ONNX capabilities, batch processing, and production-ready features
-- **Benefits**: Better separation of concerns, improved scalability, enhanced ML capabilities, robust error handling
+# Deploy to production
+./deploy-production.sh
+```
 
 ## Architecture Overview
 
 ```
-Web Application → ML Service Client → Standalone ML API → ONNX Runtime
-                      ↓                       ↓              ↓
-                   Fallback              BullMQ Queues    Face Detection
-                   Handling              Redis Cache      Face Embedding
-                                                         Attractiveness Scoring
+Nginx → Web Application (Next.js) → ML API Service → ONNX Runtime
+  ↓           ↓                         ↓              ↓
+HTTP/HTTPS  React UI                Redis Cache    Face Detection
+Routing     Face Upload             BullMQ Queues  Face Embedding
+            Scoring UI                             Attractiveness Scoring
 ```
 
-## Structure
+## Project Structure
 
 ```
-aurum-workspace/
-├── apps/                    # Applications
-│   ├── web/                # Next.js web application with ML service client
-│   ├── ml-api/             # Standalone ML scoring API service (NEW)
-│   └── landing-page/       # Marketing landing page
-├── packages/               # Shared packages
-│   ├── shared-types/       # Shared TypeScript types
-│   ├── shared-utils/       # Shared utilities and error handling
-│   └── shared-config/      # Shared configuration patterns
-├── scripts/                # Utility scripts
-│   ├── analyze-codebase.js # Codebase analysis tool
-│   ├── backup.js           # Backup management tool
-│   └── validate-cleanup.js # Cleanup validation tool
-├── deploy/                 # Deployment configurations
-├── ARCHITECTURE.md         # Comprehensive architecture documentation
-└── ML_SERVICE_INTEGRATION_GUIDE.md # Integration guide
+aurum-miniapp-prod/
+├── apps/
+│   ├── web/                    # Next.js web application
+│   └── ml-api/                 # Standalone ML API service
+├── deploy/
+│   └── nginx/                  # Nginx configuration
+├── packages/                   # Shared packages
+├── docker-compose.prod.yml     # Production deployment
+├── deploy-production.sh        # Deployment script
+└── validate-deployment.sh      # Pre-deployment validation
 ```
 
-## Quick Start
+## Services
 
-```bash
-# Install dependencies
-npm install
+### Web Application (`apps/web/`)
+- **Framework**: Next.js 14 with TypeScript
+- **Features**: Face upload, scoring UI, user authentication
+- **Port**: 3000
+- **Health Check**: `/api/health`
 
-# Build all packages
-npm run build
+### ML API Service (`apps/ml-api/`)
+- **Framework**: Node.js with TypeScript
+- **Features**: Face detection, embedding, attractiveness scoring
+- **Port**: 3001
+- **Health Check**: `/api/health`
 
-# Start development servers
-npm run dev
-
-# Run tests
-npm run test
-
-# Lint code
-npm run lint
-```
-
-## Scripts
-
-### Codebase Analysis
-
-Analyze the codebase for unused files, duplicates, and optimization opportunities:
-
-```bash
-npm run analyze
-```
-
-### Backup Management
-
-Create backups before making changes:
-
-```bash
-# Create full backup
-npm run backup full "Description"
-
-# Create selective backup
-node scripts/backup.js selective file1.js file2.js
-
-# List backups
-node scripts/backup.js list
-
-# Restore backup
-node scripts/backup.js restore backup-name
-```
-
-### Docker
-
-```bash
-# Build and start services
-npm run docker:up
-
-# Development mode
-npm run docker:dev
-
-# Production mode
-npm run docker:prod
-
-# Stop services
-npm run docker:down
-```
-
-## ✨ Key Features
-
-### Advanced ML Capabilities
-
-- **Real ONNX Model Processing** - Face detection, embedding extraction, and attractiveness scoring
-- **Batch Processing** - Process multiple images in parallel with configurable batch sizes
-- **Fallback Mechanisms** - Graceful degradation to simulated ML when models unavailable
-- **Quality Validation** - Comprehensive face quality metrics and thresholds
-
-### Production-Ready Infrastructure
-
-- **BullMQ Queues** - Advanced queue management with monitoring dashboard
-- **Redis Caching** - High-performance caching layer
-- **Rate Limiting** - Configurable request throttling
-- **Health Monitoring** - Detailed service and model status endpoints
-- **Comprehensive Logging** - Structured logging with request tracking
-
-### Monorepo Integration
-
-- **Shared Types** - Consistent type definitions across services
-- **Shared Utilities** - Standardized error handling and logging
-- **Configuration Management** - Centralized config patterns
+### Infrastructure
+- **Nginx**: Reverse proxy and load balancer (Port 80)
+- **Redis**: Caching and session storage (Port 6379)
+- **Qdrant**: Vector database for ML operations (Port 6333)
 
 ## Development
 
-This workspace uses:
+### Prerequisites
+- Docker and Docker Compose
+- Node.js 20+
+- Git
 
-- **Turborepo** for build orchestration
-- **TypeScript** for type safety
-- **ESLint** for code quality
-- **Prettier** for code formatting
+### Local Development
+```bash
+# Install dependencies
+cd apps/web && npm install
+cd ../ml-api && npm install
 
-## Applications
+# Start development servers
+cd apps/web && npm run dev
+cd apps/ml-api && npm run dev
+```
 
-### Web App (`apps/web`)
+## Production Deployment
 
-Next.js application with face scoring functionality, user authentication, and discovery features. Now integrates with the standalone ML service via ML Service Client with robust fallback mechanisms.
+### Prerequisites
+- Ubuntu 20.04 LTS or later
+- Docker 20.10+ and Docker Compose v2
+- At least 4GB RAM and 20GB disk space
 
-**Key Integrations:**
+### Deployment Steps
 
-- ML Service Client for communication with standalone ML API
-- Fallback engines for graceful degradation
-- Redis caching for performance optimization
-- Comprehensive error handling and user feedback
+1. **Validate Configuration**
+   ```bash
+   ./validate-deployment.sh
+   ```
 
-### ML API (`apps/ml-api`)
+2. **Deploy Services**
+   ```bash
+   ./deploy-production.sh
+   ```
 
-Standalone ML scoring API service with advanced ONNX model processing, queue management, and production-ready monitoring capabilities.
+3. **Check Status**
+   ```bash
+   ./deploy-production.sh status
+   ```
 
-**Key Features:**
+### Service URLs
+- **Web Application**: http://localhost
+- **ML API**: http://localhost/ml-api
+- **Health Checks**: http://localhost/nginx-health
 
-- ONNX Runtime integration for face detection, embedding extraction, and attractiveness scoring
-- BullMQ queue system for scalable image processing
-- Redis caching and session management
-- Health monitoring and status endpoints
-- Batch processing capabilities
-- Comprehensive error handling and logging
+## Configuration
 
-### Landing Page (`apps/landing-page`)
+### Environment Variables
 
-Marketing landing page for the Aurum platform.
+Create `.env.production` with:
+```bash
+NODE_ENV=production
+REDIS_URL=redis://redis:6379
+QDRANT_HOST=qdrant
+QDRANT_PORT=6333
+ML_API_URL=http://ml-api:3000
+# Add your API keys and secrets
+```
 
-## Packages
+### SSL/HTTPS Setup
 
-### Shared Types (`packages/shared-types`)
+For production with SSL:
+1. Place certificates in `deploy/nginx/ssl/`
+2. Update nginx configuration
+3. Uncomment HTTPS port in docker-compose
 
-Common TypeScript type definitions used across applications, including ML processing results, API responses, and service interfaces.
+## Monitoring
 
-### Shared Utils (`packages/shared-utils`)
+### Health Checks
+- **Web App**: `GET /api/health`
+- **ML API**: `GET /api/health`
+- **Nginx**: `GET /nginx-health`
 
-Shared utilities including standardized error handling, logging, and validation functions used across all services.
+### Logs
+```bash
+# View all logs
+./deploy-production.sh logs
 
-### Shared Config (`packages/shared-config`)
+# View specific service logs
+docker compose -f docker-compose.prod.yml logs -f nginx
+```
 
-Common configuration patterns for TypeScript, ESLint, Prettier, and Jest across the monorepo.
+## Troubleshooting
 
-## Contributing
+### Common Issues
 
-1. Create a feature branch
-2. Make your changes
-3. Run tests and linting
-4. Create a pull request
+1. **Port conflicts**: Check if ports 80, 3000, 3001, 6333, 6379 are available
+2. **Docker permissions**: Ensure user is in docker group
+3. **SSL issues**: Verify certificate paths and nginx configuration
+
+### Debug Commands
+```bash
+# Check service status
+docker compose -f docker-compose.prod.yml ps
+
+# Check logs
+docker compose -f docker-compose.prod.yml logs service-name
+
+# Restart services
+./deploy-production.sh restart
+```
+
+## Documentation
+
+- **[Production Deployment Guide](PRODUCTION-DEPLOYMENT.md)** - Comprehensive deployment instructions
+- **[Web App README](apps/web/README.md)** - Frontend application details
+- **[ML API README](apps/ml-api/README.md)** - ML service documentation
 
 ## License
 
-MIT
+[Your License Here]
