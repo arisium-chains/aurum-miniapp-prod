@@ -1,7 +1,12 @@
 #!/bin/bash
 
+# ⚠️  DEPRECATED: This script is deprecated. Use 'make deploy' instead.
 # Production Deployment Script for Aurum Miniapp
 # This script handles the complete deployment process
+
+echo "⚠️  DEPRECATED: This script is deprecated. Please use 'make deploy' instead."
+echo "See MAKEFILE-MIGRATION.md for migration guide."
+echo ""
 
 set -e  # Exit on any error
 

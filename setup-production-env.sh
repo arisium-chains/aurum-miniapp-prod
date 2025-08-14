@@ -1,7 +1,12 @@
 #!/bin/bash
 
+# ⚠️  DEPRECATED: This script is deprecated. Use 'make setup' instead.
 # Production Environment Setup Script
 # This script creates the required .env.production files from templates
+
+echo "⚠️  DEPRECATED: This script is deprecated. Please use 'make setup' instead."
+echo "See MAKEFILE-MIGRATION.md for migration guide."
+echo ""
 
 set -e
 

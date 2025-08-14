@@ -9,14 +9,13 @@ This guide provides comprehensive instructions for deploying the Aurum Miniapp i
 git clone https://github.com/arisium-chains/aurum-miniapp-prod.git
 cd aurum-miniapp-prod
 
-# Setup production environment files
-./setup-production-env.sh
+# Complete setup and deployment
+make all
 
-# Validate the deployment
-./validate-deployment.sh
-
-# Deploy the application
-docker compose -f docker-compose.prod.yml up -d
+# Or step by step:
+make setup     # Setup environment files
+make validate  # Validate configuration
+make deploy    # Deploy application
 ```
 
 ## 📋 Prerequisites
@@ -52,17 +51,57 @@ docker compose version
 
 ### Environment Setup
 
-The application requires environment configuration files that are not included in the repository for security reasons. Use the provided setup script:
+The application requires environment configuration files that are not included in the repository for security reasons. Use the Makefile command:
 
 ```bash
-./setup-production-env.sh
+make setup
 ```
 
 This script will create:
 - `.env.production` - Main application environment variables
 - `apps/ml-api/.env.production` - ML API service environment variables
 
-**⚠️ Important**: After running the setup script, review and update these files with your actual production values.
+**⚠️ Important**: After running the setup command, review and update these files with your actual production values.
+
+## 🛠️ Makefile Commands
+
+The project includes a comprehensive Makefile with all deployment and management commands:
+
+### **Quick Commands**
+```bash
+make help      # Show all available commands
+make all       # Complete setup and deployment
+make setup     # Setup environment files
+make validate  # Validate configuration
+make deploy    # Full deployment
+make status    # Show service status
+make health    # Check service health
+make logs      # Show all service logs
+```
+
+### **Service Management**
+```bash
+make start     # Start services
+make stop      # Stop services
+make restart   # Restart services
+make down      # Stop and remove containers
+```
+
+### **Monitoring & Testing**
+```bash
+make test      # Run health checks
+make logs-web  # Web app logs only
+make logs-ml   # ML API logs only
+make logs-nginx # Nginx logs only
+```
+
+### **Maintenance**
+```bash
+make clean     # Clean unused Docker resources
+make backup    # Backup application data
+make update    # Update and restart services
+make reset     # Reset entire environment
+```
 
 ### Environment Variables
 

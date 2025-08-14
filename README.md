@@ -5,11 +5,16 @@ A production-ready face scoring application with ML capabilities, built with Nex
 ## 🚀 Quick Start
 
 ```bash
-# Validate deployment configuration
-./validate-deployment.sh
+# Complete setup and deployment
+make all
 
-# Deploy to production
-./deploy-production.sh
+# Or step by step:
+make setup     # Setup environment files
+make validate  # Validate configuration  
+make deploy    # Deploy to production
+
+# Show all available commands
+make help
 ```
 
 ## Architecture Overview
@@ -33,8 +38,8 @@ aurum-miniapp-prod/
 │   └── nginx/                  # Nginx configuration
 ├── packages/                   # Shared packages
 ├── docker-compose.prod.yml     # Production deployment
-├── deploy-production.sh        # Deployment script
-└── validate-deployment.sh      # Pre-deployment validation
+├── Makefile                    # All deployment commands
+└── PRODUCTION-DEPLOYMENT.md    # Comprehensive deployment guide
 ```
 
 ## Services

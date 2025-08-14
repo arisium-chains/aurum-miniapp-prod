@@ -1,7 +1,12 @@
 #!/bin/bash
 
+# ⚠️  DEPRECATED: This script is deprecated. Use 'make validate' instead.
 # Deployment Validation Script
 # This script validates the deployment configuration without actually deploying
+
+echo "⚠️  DEPRECATED: This script is deprecated. Please use 'make validate' instead."
+echo "See MAKEFILE-MIGRATION.md for migration guide."
+echo ""
 
 set -e
 
