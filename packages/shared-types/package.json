@@ -24,7 +24,8 @@
   "author": "Arisium",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "@types/node": "^20.0.0"
   },
   "peerDependencies": {
     "typescript": ">=5.0.0"

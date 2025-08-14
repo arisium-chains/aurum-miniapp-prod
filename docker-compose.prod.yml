@@ -61,8 +61,8 @@ services:
   # ML Face Scoring API
   ml-api:
     build:
-      context: ./apps/ml-api
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: apps/ml-api/Dockerfile
     ports:
       - "3001:3000" # Expose port 3001 externally, map to 3000 internally
     env_file:
