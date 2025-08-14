@@ -10,43 +10,53 @@
 # EXPOSE 3000
 # CMD ["node", "dist/index.js"]
 
-# Monorepo-compatible Dockerfile
-FROM node:20-alpine
+# Standalone ML API Dockerfile (built from apps/ml-api context)
+FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy workspace package files
+# Copy package files
 COPY package*.json ./
-COPY turbo.json ./
+COPY tsconfig.json ./
 
-# Copy shared packages
-COPY packages/ ./packages/
+# Install dependencies
+RUN npm ci
 
-# Copy ml-api specific files
-COPY apps/ml-api/package*.json ./apps/ml-api/
-COPY apps/ml-api/tsconfig.json ./apps/ml-api/
+# Copy source code
+COPY src/ ./src/
 
-# Install dependencies (workspace root)
-RUN npm install
-
-# Copy ml-api source code
-COPY apps/ml-api/src/ ./apps/ml-api/src/
-
-# Build shared packages first
-RUN npm run build --workspace=packages/shared-types
-RUN npm run build --workspace=packages/shared-utils
-RUN npm run build --workspace=packages/shared-config
-
-# Build ML API
-WORKDIR /app/apps/ml-api
+# Build the application
 RUN npm run build
+
+# Production stage
+FROM node:20-alpine AS runner
+
+# Install wget for health checks
+RUN apk add --no-cache wget
+
+WORKDIR /app
+
+# Copy package files and install production dependencies
+COPY package*.json ./
+RUN npm ci --only=production && npm cache clean --force
+
+# Copy built application
+COPY --from=builder /app/dist ./dist
 
 # Create directories for temp files and models
 RUN mkdir -p temp models
 
+# Create non-root user
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 mlapi
+
+# Set correct permissions
+RUN chown -R mlapi:nodejs /app
+USER mlapi
+
 EXPOSE 3000
 
-# Set environment variables for service identification
+# Set environment variables
 ENV SERVICE_NAME=ml-api
 ENV NODE_ENV=production
 

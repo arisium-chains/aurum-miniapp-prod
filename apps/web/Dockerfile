@@ -30,7 +30,7 @@ RUN npm prune --omit=dev
 FROM node:20-alpine AS runner
 
 # Install necessary system dependencies for the application runtime
-RUN apk add --no-cache dumb-init
+RUN apk add --no-cache dumb-init wget
 
 # Create a non-root user to run the application
 RUN addgroup --system --gid 1001 nodejs
@@ -43,7 +43,8 @@ WORKDIR /app
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.env.production.local ./.env.production.local # If you use a production-specific .env
+# Copy environment file if it exists (optional)
+# COPY --from=builder /app/.env.production.local ./.env.production.local
 
 # Copy any other essential files not covered by the standalone build
 # For example, custom scripts or configuration files not in public or .next
