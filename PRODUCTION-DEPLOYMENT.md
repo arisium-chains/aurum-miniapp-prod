@@ -6,11 +6,17 @@ This guide provides comprehensive instructions for deploying the Aurum Miniapp i
 
 ```bash
 # Clone the repository
-git clone <repository-url>
+git clone https://github.com/arisium-chains/aurum-miniapp-prod.git
 cd aurum-miniapp-prod
 
-# Run the production deployment script
-./deploy-production.sh
+# Setup production environment files
+./setup-production-env.sh
+
+# Validate the deployment
+./validate-deployment.sh
+
+# Deploy the application
+docker compose -f docker-compose.prod.yml up -d
 ```
 
 ## 📋 Prerequisites
@@ -43,6 +49,20 @@ docker compose version
 ```
 
 ## 🔧 Configuration
+
+### Environment Setup
+
+The application requires environment configuration files that are not included in the repository for security reasons. Use the provided setup script:
+
+```bash
+./setup-production-env.sh
+```
+
+This script will create:
+- `.env.production` - Main application environment variables
+- `apps/ml-api/.env.production` - ML API service environment variables
+
+**⚠️ Important**: After running the setup script, review and update these files with your actual production values.
 
 ### Environment Variables
 
