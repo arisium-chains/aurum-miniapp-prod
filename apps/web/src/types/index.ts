@@ -1,17 +1,72 @@
 // [DEPRECATED: 2025-08-11] Local type definitions preserved for reference
-// Import shared types for local use
-import type { User } from '@shared/types';
+// Standalone types (no shared dependencies)
 
-// Re-export shared types
-export type {
-  User,
-  UserSession,
-  WorldIdProof as WorldIDProof,
-  Invite,
-  ProfileCard,
-  Match,
-  DiscoveryPreferences as DiscoveryFilters,
-} from '@shared/types';
+// Basic user type
+export interface User {
+  id: string;
+  handle: string;
+  displayName: string;
+  profilePhoto?: string;
+  bio?: string;
+  age?: number;
+  location?: string;
+  interests?: string[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// User session type
+export interface UserSession {
+  userId: string;
+  sessionId: string;
+  expiresAt: Date;
+}
+
+// World ID proof type
+export interface WorldIDProof {
+  merkle_root: string;
+  nullifier_hash: string;
+  proof: string;
+  verification_level: string;
+}
+
+// Invite type
+export interface Invite {
+  id: string;
+  code: string;
+  createdBy: string;
+  maxUses: number;
+  usedCount: number;
+  expiresAt?: Date;
+  createdAt: Date;
+}
+
+// Profile card type
+export interface ProfileCard {
+  id: string;
+  userId: string;
+  photos: string[];
+  bio: string;
+  interests: string[];
+  age: number;
+  location: string;
+}
+
+// Match type
+export interface Match {
+  id: string;
+  user1Id: string;
+  user2Id: string;
+  matchedAt: Date;
+  status: 'active' | 'archived';
+}
+
+// Discovery preferences type
+export interface DiscoveryFilters {
+  ageRange: [number, number];
+  maxDistance: number;
+  interests: string[];
+}
 
 // App-specific session interface extending shared UserSession
 export interface Session {
