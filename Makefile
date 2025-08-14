@@ -158,7 +158,7 @@ deploy: validate build ## Full deployment (validate, build, and start services)
 	@echo "- Direct Web App: http://localhost:3000"
 	@echo "- Direct ML API: http://localhost:3001"
 	@echo "- Qdrant: http://localhost:6333"
-	@echo "- Redis: localhost:6379"
+        @echo "- Redis: localhost:6380"
 
 quick-deploy: ## Quick deployment without rebuild
 	@echo -e "$(BLUE)[INFO]$(NC) Quick deployment (using existing images)..."
@@ -305,7 +305,7 @@ info: ## Show deployment information
 	@echo "- Direct Web App: http://localhost:3000"
 	@echo "- Direct ML API: http://localhost:3001"
 	@echo "- Qdrant: http://localhost:6333"
-	@echo "- Redis: localhost:6379"
+        @echo "- Redis: localhost:6380"
 	@echo ""
 	@echo "Available commands: make help"
 

@@ -150,7 +150,7 @@ print_success "Nginx configuration files exist and will be validated during depl
 
 # Check port availability
 print_status "Checking port availability..."
-ports=(80 3000 3001 6333 6379)
+ports=(80 3000 3001 6333 6380)
 for port in "${ports[@]}"; do
     if netstat -tuln 2>/dev/null | grep -q ":$port "; then
         print_warning "Port $port is already in use"

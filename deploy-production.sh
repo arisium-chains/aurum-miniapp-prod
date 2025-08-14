@@ -187,7 +187,7 @@ show_status() {
     echo "  - Web Application: http://localhost"
     echo "  - ML API: http://localhost/ml-api"
     echo "  - Nginx Health: http://localhost/nginx-health"
-    echo "  - Redis: localhost:6379"
+    echo "  - Redis: localhost:6380"
     echo "  - Qdrant: http://localhost:6333"
     echo ""
 }

@@ -58,7 +58,7 @@ aurum-miniapp-prod/
 
 ### Infrastructure
 - **Nginx**: Reverse proxy and load balancer (Port 80)
-- **Redis**: Caching and session storage (Port 6379)
+- **Redis**: Caching and session storage (Port 6380)
 - **Qdrant**: Vector database for ML operations (Port 6333)
 
 ## Development
@@ -149,7 +149,7 @@ docker compose -f docker-compose.prod.yml logs -f nginx
 
 ### Common Issues
 
-1. **Port conflicts**: Check if ports 80, 3000, 3001, 6333, 6379 are available
+1. **Port conflicts**: Check if ports 80, 3000, 3001, 6333, 6380 are available
 2. **Docker permissions**: Ensure user is in docker group
 3. **SSL issues**: Verify certificate paths and nginx configuration
 
