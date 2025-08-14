@@ -86,7 +86,7 @@ ATTRACTIVENESS_MODEL=attractiveness_model.onnx
 # Security Configuration
 API_KEY_HEADER=x-api-key
 API_KEY_SECRET=your-api-key-secret
-CORS_ORIGIN=http://localhost:3000
+CORS_ORIGIN=http://localhost:3002
 
 # ML Processing Configuration
 ML_BATCH_SIZE=10
@@ -372,22 +372,22 @@ npx ts-node src/test-queue.ts
 
 ```bash
 # Health check
-curl http://localhost:3000/api/ml/health
+curl http://localhost:3002/api/ml/health
 
 # Model status
-curl http://localhost:3000/api/ml/models/status
+curl http://localhost:3002/api/ml/models/status
 
 # Test image processing (with file upload)
 curl -X POST \
   -F "image=@/path/to/test-image.jpg" \
   -F "userId=test-user" \
-  http://localhost:3000/api/ml/score
+  http://localhost:3002/api/ml/score
 
 # Legacy endpoint test
 curl -X POST \
   -H "Content-Type: application/json" \
   -d '{"imageBase64":"data:image/jpeg;base64,test..."}' \
-  http://localhost:3000/api/ml/face-score
+  http://localhost:3002/api/ml/face-score
 ```
 
 ## 🔧 Performance Tuning
@@ -548,7 +548,7 @@ node --inspect src/index.ts
 
 ```bash
 # Check queue status
-curl http://localhost:3000/api/ml/models/status | jq '.data.queue'
+curl http://localhost:3002/api/ml/models/status | jq '.data.queue'
 
 # Increase concurrency
 export BULLMQ_CONCURRENCY=10
@@ -614,7 +614,7 @@ If migrating from the old nested API structure:
 - Health checks: `GET /api/ml/health`
 - Model status: `GET /api/ml/models/status`
 - Application logs: `./logs/` directory
-- Queue dashboard: `http://localhost:3000/admin/queues` (if enabled)
+- Queue dashboard: `http://localhost:3002/admin/queues` (if enabled)
 
 ---
 

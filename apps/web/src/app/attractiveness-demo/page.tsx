@@ -119,7 +119,7 @@ export default function AttractivenessDemoPage() {
   const loadLeaderboard = async () => {
     try {
       // Use full URL for server-side compatibility
-      const baseUrl = typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+      const baseUrl = typeof window !== 'undefined' ? '' : process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3002';
       const response = await fetch(`${baseUrl}/api/attractiveness/leaderboard?limit=10`)
       const result = await response.json()
       

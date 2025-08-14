@@ -32,7 +32,7 @@ services:
       context: ./apps/web
       dockerfile: Dockerfile
     ports:
-      - "3000:3000" # Expose for direct access if needed, but typically via Nginx
+      - "3002:3000" # Expose for direct access if needed, but typically via Nginx
     env_file:
       - .env.production
     environment:
