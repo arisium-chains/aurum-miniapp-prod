@@ -155,7 +155,7 @@ deploy: validate build ## Full deployment (validate, build, and start services)
 	@echo "Service URLs:"
 	@echo "- Web Application: http://localhost"
 	@echo "- ML API: http://localhost/ml-api/"
-	@echo "- Direct Web App: http://localhost:3000"
+@echo "- Direct Web App: http://localhost:3002"
 	@echo "- Direct ML API: http://localhost:3001"
 	@echo "- Qdrant: http://localhost:6333"
         @echo "- Redis: localhost:6380"
@@ -236,7 +236,7 @@ test: ## Run health checks and basic tests
 	@echo "Running Tests"
 	@echo "================================================"
 	@echo -e "$(BLUE)[INFO]$(NC) Testing web app health endpoint..."
-	@if curl -f -s http://localhost:3000/api/health >/dev/null; then \
+@if curl -f -s http://localhost:3002/api/health >/dev/null; then \
 		echo -e "$(GREEN)[SUCCESS]$(NC) Web app health check passed"; \
 	else \
 		echo -e "$(RED)[FAILED]$(NC) Web app health check failed"; \
@@ -302,7 +302,7 @@ info: ## Show deployment information
 	@echo "Service URLs:"
 	@echo "- Web Application: http://localhost"
 	@echo "- ML API: http://localhost/ml-api/"
-	@echo "- Direct Web App: http://localhost:3000"
+@echo "- Direct Web App: http://localhost:3002"
 	@echo "- Direct ML API: http://localhost:3001"
 	@echo "- Qdrant: http://localhost:6333"
         @echo "- Redis: localhost:6380"

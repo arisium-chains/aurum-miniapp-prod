@@ -50,7 +50,7 @@ const envSchema = Joi.object({
   // Security Configuration
   API_KEY_HEADER: Joi.string().default('x-api-key'),
   API_KEY_SECRET: Joi.string().optional(),
-  CORS_ORIGIN: Joi.string().default('http://localhost:3000'),
+  CORS_ORIGIN: Joi.string().default('http://localhost:3002'),
 
   // Health Check Configuration
   HEALTH_CHECK_INTERVAL: Joi.number().default(30000),
