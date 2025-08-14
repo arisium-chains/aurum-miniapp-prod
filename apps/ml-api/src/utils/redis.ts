@@ -3,7 +3,7 @@ import { logger } from '@shared/utils';
 
 export function createRedisClient(): RedisClientType {
   // [DEPRECATED: 2025-08-11] Docker hostname preserved for reference
-  // url: process.env.REDIS_URL || "redis://redis:6379",
+  // url: process.env.REDIS_URL || "redis://redis:6380",
 
   // Use localhost for local development, redis hostname for Docker
   const client: RedisClientType = createClient({
