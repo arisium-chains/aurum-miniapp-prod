@@ -1,34 +1,40 @@
-version: "3.8"
-
 services:
   # Nginx reverse proxy
   nginx:
     build:
-      context: ./nginx
+      context: ./deploy/nginx
       dockerfile: Dockerfile
     ports:
       - "80:80"
       # Uncomment when SSL is configured:
       # - "443:443"
     depends_on:
-      - app
-      - ml-api
+      app:
+        condition: service_healthy
+      ml-api:
+        condition: service_healthy
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/conf:/etc/nginx/conf.d:ro
+      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deploy/nginx/conf:/etc/nginx/conf.d:ro
       - nginx_logs:/var/log/nginx
     restart: unless-stopped
     networks:
       - aurum-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/nginx-health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   # Main Next.js application
   app:
     build:
-      context: ../apps/web
+      context: ./apps/web
       dockerfile: Dockerfile
     ports:
       - "3000:3000" # Expose for direct access if needed, but typically via Nginx
     env_file:
-      - ../.env.production
+      - .env.production
     environment:
       - NODE_ENV=production
       - REDIS_URL=redis://redis:6379
@@ -41,7 +47,7 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - ../apps/web/public/models:/app/public/models
+      - ./apps/web/public/models:/app/public/models
     restart: unless-stopped
     networks:
       - aurum-network
@@ -55,20 +61,21 @@ services:
   # ML Face Scoring API
   ml-api:
     build:
-      context: ../apps/ml-api
+      context: ./apps/ml-api
       dockerfile: Dockerfile
     ports:
       - "3001:3000" # Expose port 3001 externally, map to 3000 internally
     env_file:
-      - ../apps/ml-api/.env.production
+      - ./apps/ml-api/.env.production
     environment:
       - NODE_ENV=production
       - REDIS_URL=redis://redis:6379
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     volumes:
-      - ../apps/ml-api/temp:/app/temp
-      - ../apps/ml-api/models:/app/models
+      - ./apps/ml-api/temp:/app/temp
+      - ./apps/ml-api/models:/app/models
     restart: unless-stopped
     networks:
       - aurum-network
@@ -89,14 +96,20 @@ services:
     restart: unless-stopped
     networks:
       - aurum-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:6333/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # Redis cache and queue
   redis:
-    image: redis:latest
+    image: redis:7-alpine
     ports:
       - "6379:6379" # Expose for direct access if needed
     volumes:
       - redis_data:/data
+    command: redis-server --appendonly yes
     restart: unless-stopped
     networks:
       - aurum-network
@@ -116,5 +129,8 @@ networks:
 
 volumes:
   qdrant_storage:
+    name: aurum_qdrant_storage
   redis_data:
+    name: aurum_redis_data
   nginx_logs:
+    name: aurum_nginx_logs
