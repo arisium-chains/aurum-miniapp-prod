@@ -165,6 +165,30 @@ docker compose -f docker-compose.prod.yml logs service-name
 ./deploy-production.sh restart
 ```
 
+## AI Assistant Slash Commands
+
+This repository includes built-in slash commands for use with [opencode](https://opencode.ai) and compatible AI coding assistants.
+
+### `/init-deep`
+
+Generates hierarchical `AGENTS.md` documentation files throughout the project by deeply analyzing code structure, conventions, and patterns.
+
+```
+/init-deep                # Update mode: modify existing + create new where warranted
+/init-deep --create-new   # Regenerate all AGENTS.md files from scratch
+/init-deep --max-depth=2  # Limit directory depth (default: 3)
+```
+
+The command runs a multi-phase workflow:
+1. **Discovery** – fires concurrent explore agents and gathers bash/LSP analysis
+2. **Scoring** – ranks directories by complexity to decide where AGENTS.md files belong
+3. **Generate** – writes root and subdirectory AGENTS.md files in parallel
+4. **Review** – deduplicates content and validates quality
+
+Command definition: [`.opencode/commands/init-deep.md`](.opencode/commands/init-deep.md)
+
+> Ported from [code-yeongyu/oh-my-openagent](https://github.com/code-yeongyu/oh-my-openagent) — no installation of oh-my-openagent required.
+
 ## Documentation
 
 - **[Production Deployment Guide](PRODUCTION-DEPLOYMENT.md)** - Comprehensive deployment instructions
